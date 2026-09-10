@@ -13,9 +13,7 @@ export function Background({ type }: BackgroundProps) {
 
     return (
         <Svg
-            // Base uniforme fixa para todas as telas do aplicativo
             viewBox="0 0 100 100"
-            // Força o desenho a se esticar nas horizontais e verticais da tela
             preserveAspectRatio="none"
             style={baseStyle.svg}
         >

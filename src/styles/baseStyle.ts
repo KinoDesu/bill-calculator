@@ -6,7 +6,6 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         flex: 1,
         margin: 0,
         padding: 0,
-        position: "relative",
         backgroundColor: theme.background,
     },
     svg: {
@@ -50,25 +49,27 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
     //   button
     buttonContainer: {
+        width: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        marginTop: 25,
         gap: 10,
     },
     buttonStyle: {
-        width: 350,
-        height: 50,
+        width: "100%",
+        maxWidth: 350,
+        height: 50, // Defina a altura diretamente em vez de usar maxHeight/height: 100%
         backgroundColor: '#443C68',
         borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: "center", // Centraliza o texto verticalmente
+        alignItems: "center",
     },
     buttonText: {
         color: theme.primary,
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: '800',
+        textAlign: "center",
     },
     buttonPressed: {
         opacity: 0.8,
