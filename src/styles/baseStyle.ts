@@ -19,6 +19,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
     container: {
         flex: 1,
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "space-between",
         paddingVertical: 100,
@@ -30,20 +31,22 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         fontWeight: 900,
         textAlign: "center",
     },
+    // header
     headerStyle: {
-        color: theme.primary,
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
         backgroundColor: theme.title,
+    },
+    headerTintColor: {
+        tintColor: theme.primary,
+    },
+    headerTitleAlign: {
         textAlign: "center",
     },
-    headerTextStyle: {
+    headerTitleStyle: {
         color: theme.primary,
         fontSize: 24,
-        fontWeight: "bold",
+        fontWeight: "900",
     },
+    // end header
     textStyle: {
         color: theme.primary,
     },
@@ -64,6 +67,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         borderRadius: 10,
         justifyContent: "center", // Centraliza o texto verticalmente
         alignItems: "center",
+        userSelect: "none", // Evita seleção de texto
     },
     buttonText: {
         color: theme.primary,
@@ -73,6 +77,141 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
     buttonPressed: {
         opacity: 0.8,
-    }
+    },
+
+    squareButtonStyle: {
+        width: 50,
+        height: 50,
+
+        backgroundColor: "#443C68",
+        borderRadius: 8,
+
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    squareButtonTextStyle: {
+        color: "#FFFFFF",
+        fontSize: 20,
+        fontWeight: "800",
+    },
     //   end button
+
+    // text input
+    inputContainer: {
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 20,
+    },
+    inputStyle: {
+        width: "100%",
+        maxWidth: 350,
+        height: 50,
+        backgroundColor: theme.background,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 10,
+
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+
+        color: theme.primary,
+        fontSize: 24,
+        fontWeight: "700",
+    },
+    // end text input
+
+    // number input
+    numberInputContainer: {
+        width: "100%",
+        maxWidth: 350,
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "left",
+    },
+
+    numberInputLabel: {
+        color: theme.primary,
+        fontSize: 24,
+        fontWeight: "700",
+        marginBottom: 8,
+        alignSelf: "flex-start",
+    },
+
+    numberInputControls: {
+        flexDirection: "row",
+        alignItems: "center",
+        textAlign: "center",
+        gap: 8,
+        userSelect: "none", // Evita seleção de texto
+    },
+
+    numberInput: {
+        width: 100,
+        height: 50,
+
+        borderWidth: 1,
+        borderColor: "#FFFFFF",
+        borderRadius: 8,
+
+        backgroundColor: "#000000",
+
+        color: "#FFFFFF",
+        fontSize: 24,
+        fontWeight: "800",
+        textAlign: "center",
+    },
+    // end number input
+
+    //Qr code
+    scanArea: {
+        width: 250,
+        height: 250,
+
+        borderWidth: 2,
+        borderColor: theme.inputBorder,
+        backgroundColor: theme.secondaryBackground,
+
+        overflow: "hidden",
+    },
+    camera: {
+        width: "100%",
+        height: "100%",
+    },
+    permissionContainer: {
+        width: 250,
+        height: 250,
+
+        borderWidth: 2,
+        borderColor: theme.inputBorder,
+        borderRadius: 10,
+
+        backgroundColor: theme.secondaryBackground,
+
+        alignItems: "center",
+        justifyContent: "center",
+
+        padding: 20,
+    },
+
+    permissionText: {
+        color: theme.primary,
+        fontSize: 18,
+        fontWeight: "700",
+        textAlign: "center",
+
+        marginBottom: 20,
+    },
+
+    permissionButton: {
+        color: theme.primary,
+        fontSize: 16,
+        fontWeight: "700",
+        textAlign: "center",
+    },
+    //end Qrcode
 });

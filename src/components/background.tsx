@@ -85,7 +85,7 @@ function JoinTableBackground() {
           H 0
           Z
         "
-                fill="#18122E"
+                fill="#18122B"
             />
         </>
     );
