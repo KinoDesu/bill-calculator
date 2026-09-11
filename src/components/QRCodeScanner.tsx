@@ -1,8 +1,8 @@
 import { useTheme } from "@/hooks/use-theme";
 import { BaseStyle } from "@/styles/baseStyle";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useRef } from "react";
+import { useIsFocused } from "expo-router";
+import { useEffect, useRef } from "react";
 import { Pressable, Text, View } from "react-native";
 
 type QRCodeScannerProps = {
@@ -12,17 +12,18 @@ type QRCodeScannerProps = {
 export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
     const [permission, requestPermission] = useCameraPermissions();
 
+    const isFocused = useIsFocused();
+
     const lastScannedData = useRef<string | null>(null);
 
     const theme = useTheme();
     const baseStyle = BaseStyle(theme);
 
-    useFocusEffect(
-        useCallback(() => {
-            // Reseta o último QR Code sempre que a tela entrar em foco
+    useEffect(() => {
+        if (isFocused) {
             lastScannedData.current = null;
-        }, [])
-    );
+        }
+    }, [isFocused]);
 
     if (!permission) {
         return null;
@@ -42,6 +43,11 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
                 </Pressable>
             </View>
         );
+    }
+
+    // Não mantém a câmera montada quando sai da página
+    if (!isFocused) {
+        return null;
     }
 
     return (
