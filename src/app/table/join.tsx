@@ -1,8 +1,6 @@
 import { Background } from "@/components/background";
 import { QRCodeScanner } from "@/components/QRCodeScanner";
 import { useTheme } from "@/hooks/use-theme";
-import { Table } from "@/models/Table";
-import { api } from "@/services/api";
 import { BaseStyle } from "@/styles/baseStyle";
 import { router } from "expo-router";
 import { Text, View } from "react-native";
@@ -16,26 +14,20 @@ export default function joinTable() {
             <Background type="joinTable" />
             <View style={baseStyle.container}>
                 <QRCodeScanner
-                    onRead={async (data) => {
+                    onRead={(data) => {
                         try {
                             const url = new URL(data);
                             const tableCode = url.pathname.split("/").pop();
 
                             if (!tableCode) {
+                                console.error("Código da mesa não encontrado");
                                 return;
                             }
-
-                            const response = await api.get<Table>(
-                                `/table/code/${tableCode}`
-                            );
-
-                            const table = response.data;
 
                             router.push({
                                 pathname: "/table/[tableCode]",
                                 params: {
-                                    tableCode: table.code,
-                                    table: JSON.stringify(table),
+                                    tableCode,
                                 },
                             });
                         } catch (error) {

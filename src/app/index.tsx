@@ -12,7 +12,7 @@ export default function Index() {
     <View style={baseStyle.app}>
       <Background type="home" />
       <View style={baseStyle.container}>
-        <Text style={baseStyle.titleStyle}>Calcula Conta</Text>
+        <Text style={baseStyle.appTitleStyle}>Calcula Conta</Text>
         <View style={baseStyle.buttonContainer}>
           <ThemedButton
             title="Criar uma mesa"

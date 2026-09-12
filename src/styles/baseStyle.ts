@@ -22,14 +22,15 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "space-between",
-        paddingVertical: 100,
-        paddingHorizontal: 5,
+        paddingVertical: 5,
+        marginVertical: 25,
     },
-    titleStyle: {
+    appTitleStyle: {
         color: theme.title,
         fontSize: 64,
         fontWeight: 900,
         textAlign: "center",
+        marginTop:100,
     },
     // header
     headerStyle: {

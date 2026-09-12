@@ -1,15 +1,13 @@
 import { useTheme } from "@/hooks/use-theme";
 import { BaseStyle } from "@/styles/baseStyle";
 import { Stack } from "expo-router";
-import { useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 
 export default function RootLayout() {
 
   const colorScheme = useColorScheme();
   const theme = useTheme();
   const baseStyle = BaseStyle(theme);
-  console.log(colorScheme);
-  console.log(theme);
   
   return (
 <Stack screenOptions={{headerShown: true,
@@ -17,11 +15,15 @@ export default function RootLayout() {
     headerTintColor: baseStyle.headerTintColor.tintColor,
     headerTitleStyle: baseStyle.headerTitleStyle,
     headerTitleAlign: baseStyle.headerTitleAlign.textAlign,
+    headerLeft:
+         Platform.OS === "web"
+            ? () => null
+            : undefined,
     }}>
       <Stack.Screen name="index" options={{ title: "Home", headerShown: false }} />
-      <Stack.Screen name="table/create" options={{ title: "Create Table" }} />
-      <Stack.Screen name="table/join" options={{ title: "Join Table" }} />
-      <Stack.Screen name="table/[tableCode]" options={{ title: "Table Room" }} />
+      <Stack.Screen name="table/create" options={{ title: "Criar uma mesa" }} />
+      <Stack.Screen name="table/join" options={{ title: "Sentar-se à mesa" }} />
+      <Stack.Screen name="table/[tableCode]" options={{ title: "[tableCode]" }} />
     </Stack>
   );
 }
