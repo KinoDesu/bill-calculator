@@ -19,34 +19,36 @@ import {
 } from "react-native";
 
 export default function TableRoom() {
-   const theme = useTheme();
-   const baseStyle = BaseStyle(theme);
-
    const { tableCode } = useLocalSearchParams<{
       tableCode: string;
    }>();
 
+   const theme = useTheme();
+   const baseStyle = BaseStyle(theme);
+
    const [table, setTable] = useState<Table | null>(null);
+
    const [loading, setLoading] = useState(true);
 
    useEffect(() => {
-      if (!tableCode) {
-         router.replace("/table/join");
+      if (table || !tableCode) {
          return;
       }
+
+      setLoading(true);
 
       getTableData(tableCode)
          .then((table) => {
             setTable(table);
          })
          .catch((error) => {
-            console.error("Erro ao buscar mesa:", error);
+            console.error("Falha ao recuperar dados da mesa");
             router.replace("/table/join");
          })
          .finally(() => {
             setLoading(false);
          });
-   }, [tableCode]);
+   }, [table, tableCode]);
 
    return (
       <>

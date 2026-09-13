@@ -2,8 +2,9 @@ import { useTheme } from "@/hooks/use-theme";
 import { BaseStyle } from "@/styles/baseStyle";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useIsFocused } from "expo-router";
-import { useEffect, useRef } from "react";
-import { Pressable, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Platform, Pressable, Text, View } from "react-native";
+import { SquareButton } from "./squareButton";
 
 type QRCodeScannerProps = {
     onRead: (data: string) => void;
@@ -11,19 +12,26 @@ type QRCodeScannerProps = {
 
 export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
     const [permission, requestPermission] = useCameraPermissions();
+    const [facing, setFacing] = useState<"back" | "front">("back");
 
     const isFocused = useIsFocused();
 
-    const lastScannedData = useRef<string | null>(null);
+    const [lastScannedData, setLastScannedData] = useState<string | null>(null);
 
     const theme = useTheme();
     const baseStyle = BaseStyle(theme);
 
     useEffect(() => {
         if (isFocused) {
-            lastScannedData.current = null;
+            setLastScannedData(null);
         }
     }, [isFocused]);
+
+    function toggleCamera() {
+        setFacing((current) =>
+            current === "back" ? "front" : "back"
+        );
+    }
 
     if (!permission) {
         return null;
@@ -51,24 +59,33 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
     }
 
     return (
-        <View style={baseStyle.scanArea}>
-            <CameraView
-                style={baseStyle.camera}
-                facing="back"
-                ratio="1:1"
-                barcodeScannerSettings={{
-                    barcodeTypes: ["qr"],
-                }}
-                onBarcodeScanned={({ data }) => {
-                    if (data === lastScannedData.current) {
-                        return;
-                    }
+        <View style={baseStyle.qrCodeContainer}>
+            <View style={baseStyle.scanArea}>
+                <CameraView
+                    style={baseStyle.camera}
+                    facing={facing}
+                    ratio="1:1"
+                    barcodeScannerSettings={{
+                        barcodeTypes: ["qr"],
+                    }}
+                    onBarcodeScanned={({ data }) => {
+                        if (data === lastScannedData) {
+                            return;
+                        }
 
-                    lastScannedData.current = data;
+                        setLastScannedData(data);
 
-                    onRead(data);
-                }}
-            />
+                        onRead(data);
+                    }}
+                />
+            </View>
+
+            {Platform.OS !== "web" && (
+                <SquareButton
+                    title="C"
+                    onPress={toggleCamera}
+                />
+            )}
         </View>
     );
 }

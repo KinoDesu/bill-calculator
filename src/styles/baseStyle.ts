@@ -169,6 +169,11 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     // end number input
 
     //Qr code
+    qrCodeContainer:{
+        justifyContent:"center",
+        alignItems:"center",
+        gap:10,
+    },
     scanArea: {
         width: 250,
         height: 250,
@@ -178,6 +183,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         backgroundColor: theme.secondaryBackground,
 
         overflow: "hidden",
+        borderRadius: 10,
     },
     camera: {
         width: "100%",

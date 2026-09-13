@@ -10,19 +10,19 @@ export default function createTable() {
    const theme = useTheme();
    const baseStyle = BaseStyle(theme);
 
-   const [people, setPeople] = useState(2);
+   const [clientQuantity, setClientQuantity] = useState(2);
 
    return (
       <View style={baseStyle.app}>
          <Background type="createTable" />
          <View style={baseStyle.container}>
             <View style={baseStyle.inputContainer}>
-               <TextInput style={baseStyle.inputStyle} placeholder="Seu nome" placeholderTextColor={theme.inputPlaceHolder} />
-               <TextInput style={baseStyle.inputStyle} placeholder="Nome da mesa" placeholderTextColor={theme.inputPlaceHolder} />
+               <TextInput style={baseStyle.inputStyle} placeholder="Seu nome" placeholderTextColor={theme.inputPlaceHolder} onChangeText={(newValue) => { console.log("mesa") }} />
+               <TextInput style={baseStyle.inputStyle} placeholder="Nome da mesa" placeholderTextColor={theme.inputPlaceHolder} onChangeText={(newValue) => { console.log("mesa") }} />
                <CustomNumberInput
                   label="Pessoas na mesa"
-                  value={people}
-                  onChange={setPeople}
+                  value={clientQuantity}
+                  onChange={setClientQuantity}
                   min={2}
                   max={20}
                />
@@ -31,7 +31,7 @@ export default function createTable() {
             </View>
             <ThemedButton
                title="Registrar clientes"
-               onPress={() => console.log('Registrar clientes')}
+               onPress={() => registerTable()}
             //  href="/table/create"
             />
          </View>
