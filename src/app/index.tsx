@@ -16,12 +16,10 @@ export default function Index() {
         <View style={baseStyle.buttonContainer}>
           <ThemedButton
             title="Criar uma mesa"
-            onPress={() => console.log('Criar mesa')}
             href="/table/create"
             />
           <ThemedButton
             title="Entrar em uma mesa"
-            onPress={() => console.log('Entrar em mesa')}
             href="/table/join"
           />
         </View>

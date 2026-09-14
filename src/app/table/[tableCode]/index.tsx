@@ -1,8 +1,11 @@
 import { Background } from "@/components/background";
+import { OrderItemBox } from "@/components/orderItemBox";
 import { SquareButton } from "@/components/squareButton";
 import { useTheme } from "@/hooks/use-theme";
+import { Order } from "@/models/Order";
 import { Table } from "@/models/Table";
-import { api } from "@/services/api";
+import { OrderService } from "@/services/orderService";
+import { TableService } from "@/services/tableService";
 import { BaseStyle } from "@/styles/baseStyle";
 import {
    router,
@@ -13,6 +16,7 @@ import { useEffect, useState } from "react";
 import {
    ActivityIndicator,
    Platform,
+   ScrollView,
    StyleSheet,
    Text,
    View,
@@ -27,79 +31,114 @@ export default function TableRoom() {
    const baseStyle = BaseStyle(theme);
 
    const [table, setTable] = useState<Table | null>(null);
+   const [orderList, setOrderList] = useState<Order[]>([]);
 
-   const [loading, setLoading] = useState(true);
+   const [loading, setLoading] = useState({
+      status: true,
+      message: "",
+   });
 
    useEffect(() => {
       if (table || !tableCode) {
          return;
       }
 
-      setLoading(true);
-
-      getTableData(tableCode)
-         .then((table) => {
-            setTable(table);
-         })
-         .catch((error) => {
-            console.error("Falha ao recuperar dados da mesa");
-            router.replace("/table/join");
-         })
-         .finally(() => {
-            setLoading(false);
-         });
+      loadTable();
    }, [table, tableCode]);
+
+   async function loadTable() {
+      try {
+         setLoading({
+            status: true,
+            message: "Entrando na mesa",
+         });
+
+         const table = await TableService.getTableDataByCode(tableCode)
+
+         setTable(table);
+
+         OrderService.getOrdersByTableId(table.tableId!)
+            .then((orderList) => {
+               setOrderList(orderList);
+               setLoading({
+                  status: false,
+                  message: "",
+               });
+            }).catch((error) => {
+               console.error("Falha ao buscar pedidos: " + error);
+            }).finally(() => {
+               setLoading({
+                  status: false,
+                  message: "",
+               });
+            })
+
+      } catch (error) {
+         console.error(
+            "Falha ao recuperar dados da mesa:",
+            error
+         );
+
+         router.replace("/table/join");
+      } finally {
+         setLoading({
+            status: false,
+            message: "",
+         });
+      }
+   }
+
+   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
    return (
       <>
          <Stack.Screen
             options={{
-               headerShown: !loading,
+               headerShown: !loading.status,
                headerStyle: baseStyle.headerStyle,
                headerTintColor: baseStyle.headerTintColor.tintColor,
                headerTitleStyle: baseStyle.headerTitleStyle,
                headerTitleAlign: baseStyle.headerTitleAlign.textAlign,
                title: table?.name ?? "",
-               headerLeft: () => {
-                  return (
-                     <View
-                        style={{
-                           marginLeft: Platform.OS === "web" ? 25 : 0,
+
+               headerLeft: () => (
+                  <View
+                     style={{
+                        marginLeft: Platform.OS === "web" ? 25 : 0,
+                     }}
+                  >
+                     <SquareButton
+                        title="M"
+                        onPress={() => console.log("Menu")}
+                     />
+                  </View>
+               ),
+
+               headerRight: () => (
+                  <View
+                     style={{
+                        marginRight: Platform.OS === "web" ? 25 : 0,
+                     }}
+                  >
+                     <SquareButton
+                        title="?"
+                        href={{
+                           pathname: "/table/[tableCode]/invite",
+                           params: {
+                              tableCode,
+                           },
                         }}
-                     >
-                        <SquareButton
-                           title="M"
-                           onPress={() => console.log("Menu")}
-                        />
-                     </View>
-                  )
-               },
-               headerRight: () => {
-                  return (
-                     <View
-                        style={{
-                           marginRight: Platform.OS === "web" ? 25 : 0,
-                        }}
-                     >
-                        <SquareButton
-                           title="?"
-                           onPress={() => console.log("QR CODE")}
-                        />
-                     </View>
-                  )
-               },
+                     />
+                  </View>
+               ),
             }}
          />
 
-         {loading ? (
+         {loading.status ? (
             <View
                style={[
                   baseStyle.app,
-                  {
-                     flex: 1,
-                     alignItems: "center",
-                     justifyContent: "center",
-                  },
+                  styles.loadingContainer,
                ]}
             >
                <ActivityIndicator
@@ -115,35 +154,69 @@ export default function TableRoom() {
                      },
                   ]}
                >
-                  Entrando na mesa...
+                  {loading.message}
                </Text>
             </View>
-         ) : !table ? (
-            null
-         ) : (
+         ) : !table ? null : (
             <View style={baseStyle.app}>
                <Background type="home" />
-
                <View style={baseStyle.container}>
-                  <View>
+                  <ScrollView style={{
+                     width: "100%",
+                     paddingHorizontal: 15,
+                     flex: 1,
+                     ...(Platform.OS === "web" && {
+                        scrollbarWidth: "thin",
+                        scrollbarColor: `${theme.primary} transparent`,
+                     })
+                  }} contentContainerStyle={{
+                     alignItems: "center",
+                     flexGrow: 1,
+                  }}>
+                     <View style={baseStyle.orderBoxContainer}>
+                        {orderList.length === 0 ? (
+                           <Text style={baseStyle.textStyle}>
+                              Nenhum pedido registrado.
+                           </Text>
+                        ) : (
+                           orderList.map((order) => (
 
-                  </View>
+                              <OrderItemBox
+                                 key={order.orderId}
+                                 order={order}
+                                 expanded={expandedOrderId === order.orderId}
+                                 onPress={() => {
+                                    setExpandedOrderId(
+                                       expandedOrderId === order.orderId
+                                          ? null
+                                          : order.orderId
+                                    );
+                                 }}
+                              />
+                           ))
+                        )}
+                     </View>
+                  </ScrollView>
+
                   <View style={styles.bottomMenuContainerStyle}>
                      <View style={styles.bottomMenuLeftContainerStyle}>
                         <SquareButton
                            title="P"
                            onPress={() => console.log("Pedido")}
                         />
+
                         <SquareButton
                            title="F"
                            onPress={() => console.log("Filtro")}
                         />
                      </View>
+
                      <SquareButton
                         title="C"
                         onPress={() => console.log("Conta")}
                      />
                   </View>
+
                </View>
             </View>
          )}
@@ -151,22 +224,12 @@ export default function TableRoom() {
    );
 }
 
-async function getTableData(tableCode: string): Promise<Table> {
-   const response = await api.get<Table>(
-      `/table/code/${tableCode}`,
-      {
-         timeout: 3000,
-      }
-   );
-
-   if (!response.data) {
-      throw new Error("Mesa não encontrada");
-   }
-
-   return response.data;
-}
-
 const styles = StyleSheet.create({
+   loadingContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+   },
 
    bottomMenuContainerStyle: {
       display: "flex",
@@ -175,7 +238,8 @@ const styles = StyleSheet.create({
       maxWidth: 400,
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: 5
+      paddingHorizontal: 5,
+      marginTop: 10,
    },
 
    bottomMenuLeftContainerStyle: {
@@ -184,6 +248,5 @@ const styles = StyleSheet.create({
       alignItems: "center",
       justifyContent: "flex-start",
       gap: 10,
-   }
-
+   },
 });

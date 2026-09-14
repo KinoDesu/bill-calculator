@@ -27,9 +27,7 @@ export default function joinTable() {
         setLoading(true);
 
         getTableData(tableCode)
-            .then((table) => {
-                console.log(table);
-                
+            .then((table) => {               
                 setTable(table);
                 router.replace({
                     pathname: "/table/[tableCode]",

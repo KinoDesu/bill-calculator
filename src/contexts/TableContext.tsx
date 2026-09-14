@@ -1,9 +1,12 @@
+import { OrderClient } from "@/models/OrderClient";
 import { Table } from "@/models/Table";
 import { createContext, useContext, useState } from "react";
 
 type TableContextData = {
    table: Table | null;
    setTable: (table: Table) => void;
+   orderClientList: OrderClient[];
+   setOrderClientList: (clientList: OrderClient[]) => void;
 };
 
 const TableContext = createContext<TableContextData | undefined>(

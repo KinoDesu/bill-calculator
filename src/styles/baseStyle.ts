@@ -30,7 +30,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         fontSize: 64,
         fontWeight: 900,
         textAlign: "center",
-        marginTop:100,
+        marginTop: 100,
     },
     // header
     headerStyle: {
@@ -169,10 +169,14 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     // end number input
 
     //Qr code
-    qrCodeContainer:{
-        justifyContent:"center",
-        alignItems:"center",
-        gap:10,
+    qrCode: {
+        width: 250,
+        height: 250,
+    },
+    qrCodeContainer: {
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 10,
     },
     scanArea: {
         width: 250,
@@ -221,4 +225,75 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         textAlign: "center",
     },
     //end Qrcode
+
+    // order
+    orderBoxContainer: {
+        width: "100%",
+        justifyContent: "flex-start",
+        gap: 15,
+    },
+
+    orderBox: {
+        backgroundColor: theme.button,
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+        borderRadius: 10,
+    },
+
+    orderBoxHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
+        padding: 10,
+    },
+
+    orderInfo: {
+        flex: 1,
+        minWidth: 0,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        gap: 5,
+    },
+
+    orderDetails: {
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        width: "100%",
+        padding: 10,
+        borderTopWidth: 1,
+        gap: 8,
+        backgroundColor: theme.secondaryBackground,
+        borderBottomRightRadius: 10,
+        borderBottomLeftRadius: 10,
+    },
+
+    orderName: {
+        width: "100%",
+        color: theme.primary,
+        fontSize: 24,
+        fontWeight: "600",
+    },
+
+    orderPrice: {
+        color: theme.primary,
+        fontSize: 12,
+        fontWeight: 600,
+    },
+
+    OrderClientContainer: {
+        backgroundColor: theme.button,
+        padding: 5,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+    },
+
+    OrderClientName: {
+        color: theme.primary,
+        fontSize: 12,
+        fontWeight: 600,
+    }
 });

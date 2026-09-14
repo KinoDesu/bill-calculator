@@ -20,7 +20,7 @@ export default function registerClients() {
 
     const { table, setTable } = useTable();
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState({status: false, message: ""});
 
     const [clientNames, setClientNames] = useState<string[]>([]);
 
@@ -29,7 +29,7 @@ export default function registerClients() {
             return;
         }
 
-        setLoading(true);
+        setLoading({status:true, message: "Recuperando mesa"});
 
         TableService.getTableDataByCode(tableCode)
             .then((table) => {
@@ -40,7 +40,7 @@ export default function registerClients() {
                 router.replace("/table/join");
             })
             .finally(() => {
-                setLoading(false);
+                setLoading({status:false, message: ""});
             });
     }, [table, tableCode]);
 
@@ -51,7 +51,7 @@ export default function registerClients() {
             <Background type="home" />
             <View style={baseStyle.container}>
                 {
-                    loading ? (
+                    loading.status ? (
                         <View>
                             <ActivityIndicator
                                 size="large"
@@ -66,7 +66,7 @@ export default function registerClients() {
                                     },
                                 ]}
                             >
-                                Buscando mesa...
+                                {loading.message}
                             </Text>
                         </View>
                     ) : null
@@ -117,7 +117,7 @@ export default function registerClients() {
                             return;
                         }
 
-                        setLoading(true);
+                        setLoading({status:true, message: "Cadastrando clientes"});
 
                         try {
                             for (const name of clientNames) {
@@ -134,7 +134,7 @@ export default function registerClients() {
                         } catch (error) {
                             console.error("Erro ao registrar cliente:", error);
                         } finally {
-                            setLoading(false);
+                            setLoading({status:false, message: ""});
                         }
 
                         router.replace({

@@ -28,6 +28,7 @@ export default function RootLayout() {
         <Stack.Screen name="table/join" options={{ title: "Sentar-se à mesa" }} />
         <Stack.Screen name="table/[tableCode]/index" options={{ title: "" }} />
         <Stack.Screen name="table/[tableCode]/clients/create" options={{ title: "Registrar clientes" }} />
+        <Stack.Screen name="table/[tableCode]/invite" options={{ title: "Convide seus amigos" }} />
       </Stack>
     </TableProvider>
   );
