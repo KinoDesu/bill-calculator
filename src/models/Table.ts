@@ -1,6 +1,6 @@
 export type Table = {
-  tableId: string;
+  tableId: string | null;
   name: string;
-  code: string;
+  code: string | null;
   clientQuantity: number;
 };

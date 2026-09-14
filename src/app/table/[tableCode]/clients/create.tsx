@@ -3,8 +3,8 @@ import { ThemedButton } from "@/components/button";
 import { useTable } from "@/contexts/TableContext";
 import { useTheme } from "@/hooks/use-theme";
 import { ClientRegisterRequest } from "@/models/ClientRegisterRequest";
-import { Table } from "@/models/Table";
-import { api } from "@/services/api";
+import { ClientService } from "@/services/clientService";
+import { TableService } from "@/services/tableService";
 import { BaseStyle } from "@/styles/baseStyle";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -14,7 +14,7 @@ export default function registerClients() {
     const { tableCode } = useLocalSearchParams<{
         tableCode: string;
     }>();
-    
+
     const theme = useTheme();
     const baseStyle = BaseStyle(theme);
 
@@ -31,7 +31,7 @@ export default function registerClients() {
 
         setLoading(true);
 
-        getTableData(tableCode)
+        TableService.getTableDataByCode(tableCode)
             .then((table) => {
                 setTable(table);
             })
@@ -73,6 +73,7 @@ export default function registerClients() {
                 }
 
                 <ScrollView style={{
+                    width: "100%",
                     padding: 15, flex: 1, ...(Platform.OS === "web" && {
                         scrollbarWidth: "thin",
                         scrollbarColor: `${theme.primary} transparent`,
@@ -106,55 +107,46 @@ export default function registerClients() {
                 </ScrollView>
                 <ThemedButton
                     title="Criar mesa"
-                    onPress={() => registerClients()}
+                    onPress={() => {
+                        const hasEmptyName = clientNames.some(
+                            (name) => !name || name.trim() === ""
+                        );
+
+                        if (hasEmptyName) {
+                            console.error("Todos os clientes precisam ter um nome");
+                            return;
+                        }
+
+                        setLoading(true);
+
+                        try {
+                            for (const name of clientNames) {
+                                const request: ClientRegisterRequest = {
+                                    name: name.trim(),
+                                    bot: true,
+                                    clientId: null,
+                                };
+
+                                ClientService.registerClient(request, table?.tableId!);
+                            }
+
+                            console.log("Clientes registrados com sucesso");
+                        } catch (error) {
+                            console.error("Erro ao registrar cliente:", error);
+                        } finally {
+                            setLoading(false);
+                        }
+
+                        router.replace({
+                            pathname: "/table/[tableCode]",
+                            params: {
+                                tableCode
+                            },
+                        });
+
+                    }}
                 />
             </View>
         </View>
     );
-
-    async function getTableData(tableCode: string): Promise<Table> {
-        const response = await api.get<Table>(
-            `/table/code/${tableCode}`,
-            {
-                timeout: 3000,
-            }
-        );
-
-        if (!response.data) {
-            throw new Error("Mesa não encontrada");
-        }
-
-        return response.data;
-    }
-
-    async function registerClients() {
-        if (!table) {
-            return;
-        }
-
-        const hasEmptyName = clientNames.some(
-            (name) => !name || name.trim() === ""
-        );
-
-        if (hasEmptyName) {
-            console.error("Todos os clientes precisam ter um nome");
-            return;
-        }
-
-        try {
-            for (const name of clientNames) {
-                const request: ClientRegisterRequest = {
-                    name: name.trim(),
-                    bot: true,
-                    clientId: null,
-                };
-
-                await api.post(`/table/${table.tableId}/clients`, request);
-            }
-
-            console.log("Clientes registrados com sucesso");
-        } catch (error) {
-            console.error("Erro ao registrar cliente:", error);
-        }
-    }
 };
