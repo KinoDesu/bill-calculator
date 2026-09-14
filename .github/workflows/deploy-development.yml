@@ -71,7 +71,9 @@ jobs:
       - name: Install Raspberry dependencies
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "cd /opt/calculaconta/frontend && npm ci"
+            "source /home/deploy/.nvm/nvm.sh && \
+            cd /opt/calculaconta/frontend && \
+            npm ci"
 
       - name: Restart Expo Metro
         run: |
