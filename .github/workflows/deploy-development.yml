@@ -56,17 +56,17 @@ jobs:
             --exclude='./.git' \
             --exclude='./.expo' \
             --exclude='./dist' \
-            -czf frontend.tar.gz .
+            -czf /tmp/frontend.tar.gz .
 
       - name: Deploy frontend
         run: |
-          scp frontend.tar.gz \
+          scp /tmp/frontend.tar.gz \
             "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/tmp/frontend.tar.gz"
 
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
             "rm -rf /opt/calculaconta/frontend/* && \
-             tar -xzf /tmp/frontend.tar.gz -C /opt/calculaconta/frontend && \
-             rm /tmp/frontend.tar.gz"
+            tar -xzf /tmp/frontend.tar.gz -C /opt/calculaconta/frontend && \
+            rm /tmp/frontend.tar.gz"
 
       - name: Install Raspberry dependencies
         run: |
