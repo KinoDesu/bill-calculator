@@ -14,21 +14,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Baixa o código da PR
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. Configura Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
+      # 3. Instala as dependências
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Expo Web
+      # 4. Verifica se o projeto Expo consegue gerar o bundle web
+      #    Isso funciona como uma validação do projeto.
+      - name: Build Expo
         run: npx expo export --platform web
 
+      # 5. Conecta o GitHub Actions à sua rede Tailscale
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
@@ -37,17 +43,39 @@ jobs:
           tags: tag:ci
           ping: ${{ secrets.RASPBERRY_HOST }}
 
+      # 6. Configura a chave SSH
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.RASPBERRY_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "${{ secrets.RASPBERRY_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Deploy frontend
+          printf '%s\n' "${{ secrets.RASPBERRY_SSH_KEY }}" \
+            > ~/.ssh/id_ed25519
+
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh-keyscan -H "${{ secrets.RASPBERRY_HOST }}" \
+            >> ~/.ssh/known_hosts
+
+      # 7. Limpa o frontend antigo no Raspberry
+      - name: Clean frontend
         run: |
-          ssh ${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }} \
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
             "rm -rf /opt/calculaconta/frontend/*"
 
-          scp -r dist/* \
-            ${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/opt/calculaconta/frontend/
+      # 8. Copia o código da PR para o Raspberry
+      - name: Deploy frontend
+        run: |
+          scp -r ./* \
+            "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/opt/calculaconta/frontend/"
+
+      # 9. Reinicia o Metro
+      - name: Restart Expo Metro
+        run: |
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
+            "sudo systemctl restart calculaconta-frontend"
+
+      # 10. Verifica se o serviço subiu corretamente
+      - name: Check Metro
+        run: |
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
+            "sudo systemctl is-active --quiet calculaconta-frontend"
