@@ -105,7 +105,7 @@ jobs:
       - name: Install frontend dependencies
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "\$HOME/.nvm/versions/node/v24.21.0/bin/npm ci --prefix /opt/calculaconta/frontend"
+            "bash -lc 'source ~/.nvm/nvm.sh && nvm use 24 && cd /opt/calculaconta/frontend && npm ci'"
 
       # ============================================================
       # Gerar .env
