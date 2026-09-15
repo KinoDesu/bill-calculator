@@ -1,0 +1,5 @@
+environment:
+  - name: API_BASE_URL
+    value: "http://kino.tail3f613f.ts.net:8080"
+  - name: APP_DEEP_LINK
+    value: "exp://kino.tail3f613f.ts.net:8081/--/"

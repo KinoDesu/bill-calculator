@@ -1,6 +1,7 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
 import { CustomNumberInput } from "@/components/customNumberInput";
+import { environment } from "@/config/environment";
 import { useTheme } from "@/hooks/use-theme";
 import { ClientRegisterRequest } from "@/models/ClientRegisterRequest";
 import { Table } from "@/models/Table";
@@ -69,11 +70,11 @@ export default function createTable() {
                onPress={() => {
 
                   setLoading(true);
-
+                  
                   const request: TableRegisterRequest = {
                      tableName: tableName,
                      clientQuantity: clientQuantity,
-                     redirectUrl: "exp://192.169.15.117:8081/--/"
+                     redirectUrl: environment.appDeepLink
                   }
 
                   TableService.registerTable(request)

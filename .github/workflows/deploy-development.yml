@@ -1,33 +1,37 @@
-name: Frontend Development
+name: Deploy Frontend
 
 on:
   pull_request:
     branches:
       - development
-    types:
-      - opened
-      - synchronize
-      - reopened
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ------------------------------------------------------------
+      # Validação
+      # ------------------------------------------------------------
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Expo
+      - name: Validate Expo project
         run: npx expo export --platform web
+
+      # ------------------------------------------------------------
+      # Tailscale
+      # ------------------------------------------------------------
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
@@ -37,17 +41,9 @@ jobs:
           tags: tag:ci
           ping: ${{ secrets.RASPBERRY_HOST }}
 
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-
-          printf '%s\n' "${{ secrets.RASPBERRY_SSH_KEY }}" \
-            > ~/.ssh/id_ed25519
-
-          chmod 600 ~/.ssh/id_ed25519
-
-          ssh-keyscan -H "${{ secrets.RASPBERRY_HOST }}" \
-            >> ~/.ssh/known_hosts
+      # ------------------------------------------------------------
+      # Preparar código
+      # ------------------------------------------------------------
 
       - name: Prepare frontend package
         run: |
@@ -56,7 +52,13 @@ jobs:
             --exclude='./.git' \
             --exclude='./.expo' \
             --exclude='./dist' \
+            --exclude='./.env' \
+            --exclude='./.env.local' \
             -czf /tmp/frontend.tar.gz .
+
+      # ------------------------------------------------------------
+      # Enviar código para o Raspberry
+      # ------------------------------------------------------------
 
       - name: Deploy frontend
         run: |
@@ -64,23 +66,74 @@ jobs:
             "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/tmp/frontend.tar.gz"
 
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "rm -rf /opt/calculaconta/frontend/* && \
-            tar -xzf /tmp/frontend.tar.gz -C /opt/calculaconta/frontend && \
-            rm /tmp/frontend.tar.gz"
+            "find /opt/calculaconta/frontend \
+              -mindepth 1 \
+              ! -name '.env' \
+              -exec rm -rf {} + && \
+             tar -xzf /tmp/frontend.tar.gz \
+              -C /opt/calculaconta/frontend && \
+             rm /tmp/frontend.tar.gz"
 
-      - name: Install Raspberry dependencies
+      # ------------------------------------------------------------
+      # Gerar .env a partir do values-dev.yaml
+      # ------------------------------------------------------------
+
+      - name: Install YAML parser
+        run: pip install pyyaml
+
+      - name: Generate frontend .env
         run: |
-          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "source /home/deploy/.nvm/nvm.sh && \
-            cd /opt/calculaconta/frontend && \
-            npm ci"
+          python - <<'PY'
+          import yaml
 
-      - name: Restart Expo Metro
+          values_file = ".cd/dev/values-dev.yaml"
+          output_file = "/tmp/frontend.env"
+
+          with open(values_file, "r", encoding="utf-8") as file:
+              config = yaml.safe_load(file)
+
+          with open(output_file, "w", encoding="utf-8") as file:
+              for environment in config.get("environment", []):
+                  name = environment.get("name")
+                  value = environment.get("value")
+
+                  if name is None or value is None:
+                      continue
+
+                  env_name = (
+                      name
+                      if name.startswith("EXPO_PUBLIC_")
+                      else f"EXPO_PUBLIC_{name}"
+                  )
+
+                  file.write(f"{env_name}={value}\n")
+
+          print(f"Generated {output_file}")
+          PY
+
+      # ------------------------------------------------------------
+      # Enviar .env para o Raspberry
+      # ------------------------------------------------------------
+
+      - name: Deploy frontend environment
+        run: |
+          scp /tmp/frontend.env \
+            "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/opt/calculaconta/frontend/.env"
+
+      # ------------------------------------------------------------
+      # Reiniciar Metro
+      # ------------------------------------------------------------
+
+      - name: Restart frontend
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
             "sudo -n systemctl restart calculaconta-frontend"
 
-      - name: Check Metro
+      # ------------------------------------------------------------
+      # Verificar serviço
+      # ------------------------------------------------------------
+
+      - name: Verify frontend
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "sudo -n systemctl is-active --quiet calculaconta-frontend"
+            "sudo -n systemctl is-active calculaconta-frontend"
