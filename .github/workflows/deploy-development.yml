@@ -83,4 +83,4 @@ jobs:
       - name: Check Metro
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "sudo systemctl is-active --quiet calculaconta-frontend"
+            "sudo -n systemctl is-active --quiet calculaconta-frontend"
