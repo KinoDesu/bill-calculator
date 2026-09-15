@@ -10,12 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ============================================================
+      # Checkout
+      # ============================================================
+
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------------
-      # Validação
-      # ------------------------------------------------------------
+      # ============================================================
+      # Node / validação
+      # ============================================================
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -29,9 +33,9 @@ jobs:
       - name: Validate Expo project
         run: npx expo export --platform web
 
-      # ------------------------------------------------------------
+      # ============================================================
       # Tailscale
-      # ------------------------------------------------------------
+      # ============================================================
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
@@ -41,9 +45,27 @@ jobs:
           tags: tag:ci
           ping: ${{ secrets.RASPBERRY_HOST }}
 
-      # ------------------------------------------------------------
-      # Preparar código
-      # ------------------------------------------------------------
+      # ============================================================
+      # SSH
+      # ============================================================
+
+      - name: Configure SSH agent
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.RASPBERRY_SSH_KEY }}
+
+      - name: Configure known hosts
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          ssh-keyscan -H "${{ secrets.RASPBERRY_HOST }}" >> ~/.ssh/known_hosts
+
+          chmod 644 ~/.ssh/known_hosts
+
+      # ============================================================
+      # Preparar pacote
+      # ============================================================
 
       - name: Prepare frontend package
         run: |
@@ -56,9 +78,9 @@ jobs:
             --exclude='./.env.local' \
             -czf /tmp/frontend.tar.gz .
 
-      # ------------------------------------------------------------
-      # Enviar código para o Raspberry
-      # ------------------------------------------------------------
+      # ============================================================
+      # Deploy do código
+      # ============================================================
 
       - name: Deploy frontend
         run: |
@@ -74,9 +96,9 @@ jobs:
               -C /opt/calculaconta/frontend && \
              rm /tmp/frontend.tar.gz"
 
-      # ------------------------------------------------------------
-      # Gerar .env a partir do values-dev.yaml
-      # ------------------------------------------------------------
+      # ============================================================
+      # Gerar .env
+      # ============================================================
 
       - name: Install YAML parser
         run: pip install pyyaml
@@ -111,29 +133,29 @@ jobs:
           print(f"Generated {output_file}")
           PY
 
-      # ------------------------------------------------------------
-      # Enviar .env para o Raspberry
-      # ------------------------------------------------------------
+      # ============================================================
+      # Deploy do .env
+      # ============================================================
 
       - name: Deploy frontend environment
         run: |
           scp /tmp/frontend.env \
             "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/opt/calculaconta/frontend/.env"
 
-      # ------------------------------------------------------------
+      # ============================================================
       # Reiniciar Metro
-      # ------------------------------------------------------------
+      # ============================================================
 
       - name: Restart frontend
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
             "sudo -n systemctl restart calculaconta-frontend"
 
-      # ------------------------------------------------------------
+      # ============================================================
       # Verificar serviço
-      # ------------------------------------------------------------
+      # ============================================================
 
       - name: Verify frontend
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "sudo -n systemctl is-active --quiet calculaconta-frontend"
+            "sudo -n systemctl is-active calculaconta-frontend"
