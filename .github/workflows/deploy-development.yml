@@ -78,7 +78,7 @@ jobs:
       - name: Restart Expo Metro
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "sudo systemctl restart calculaconta-frontend"
+            "sudo -n systemctl restart calculaconta-frontend"
 
       - name: Check Metro
         run: |
