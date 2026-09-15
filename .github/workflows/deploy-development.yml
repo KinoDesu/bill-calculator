@@ -90,11 +90,13 @@ jobs:
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
             "find /opt/calculaconta/frontend \
               -mindepth 1 \
+              -maxdepth 1 \
               ! -name '.env' \
+              ! -name 'node_modules' \
               -exec rm -rf {} + && \
-             tar -xzf /tmp/frontend.tar.gz \
+            tar -xzf /tmp/frontend.tar.gz \
               -C /opt/calculaconta/frontend && \
-             rm /tmp/frontend.tar.gz"
+            rm /tmp/frontend.tar.gz"
 
       # ============================================================
       # Gerar .env
