@@ -136,4 +136,4 @@ jobs:
       - name: Verify frontend
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "sudo -n systemctl is-active calculaconta-frontend"
+            "sudo -n systemctl is-active --quiet calculaconta-frontend"
