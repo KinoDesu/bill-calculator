@@ -99,6 +99,15 @@ jobs:
             rm /tmp/frontend.tar.gz"
 
       # ============================================================
+      # Instalar dependências no Raspberry
+      # ============================================================
+
+      - name: Install frontend dependencies
+        run: |
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
+            "cd /opt/calculaconta/frontend && npm ci"
+
+      # ============================================================
       # Gerar .env
       # ============================================================
 
@@ -160,4 +169,4 @@ jobs:
       - name: Verify frontend
         run: |
           ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
-            "sudo -n systemctl is-active calculaconta-frontend"
+            "sudo -n systemctl is-active --quiet calculaconta-frontend"
