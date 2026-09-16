@@ -1,71 +1,166 @@
 import { Background } from "@/components/background";
+import { ThemedButton } from "@/components/button";
 import ClientSelect from "@/components/ClientSelect";
 import { CustomNumberInput } from "@/components/customNumberInput";
 import { useTheme } from "@/hooks/use-theme";
+import { Client } from "@/models/Client";
+import { Order } from "@/models/Order";
+import { OrderRegisterRequest } from "@/models/OrderRegisterRequest";
 import { Table } from "@/models/Table";
+import { ClientService } from "@/services/clientService";
+import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
 import { BaseStyle } from "@/styles/baseStyle";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import {
+    ActivityIndicator,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    useWindowDimensions,
+    View,
+} from "react-native";
 
-export default function createOrder() {
-
+export default function CreateOrder() {
     const { tableCode } = useLocalSearchParams<{
         tableCode: string;
     }>();
+
+    const { height: screenHeight } = useWindowDimensions();
 
     const theme = useTheme();
     const baseStyle = BaseStyle(theme);
 
     const [itemName, setItemName] = useState("");
-    const [itemPrice, setItemPrice] = useState("");
+    const [itemPrice, setItemPrice] = useState(0);
+    const [itemPriceText, setItemPriceText] = useState("");
     const [itemQuantity, setItemQuantity] = useState(1);
-    const [selectedClientIdList, setSelectedClientIdList] = useState([]);
-       const [table, setTable] = useState<Table | null>(null);
-    
-       const [loading, setLoading] = useState({
-          status: true,
-          message: "",
-       });
+
+    const [selectedClientId, setSelectedClientId] = useState("");
+    const [selectedClientIdList, setSelectedClientIdList] = useState<string[]>([]);
+
+    const [clients, setClients] = useState<Client[]>([]);
+    const [table, setTable] = useState<Table | null>(null);
+
+    const [loading, setLoading] = useState({
+        status: true,
+        message: "",
+    });
+
+    const [successOrder, setSuccessOrder] = useState<Order | null>(null);
 
     useEffect(() => {
-          if (table || !tableCode) {
-             return;
-          }
-    
-          loadTable();
-       }, [table, tableCode]);
-    
-       async function loadTable() {
-          try {
-             setLoading({
+        if (table || !tableCode) {
+            return;
+        }
+
+        loadTable();
+    }, [table, tableCode]);
+
+    async function loadTable() {
+        try {
+            setLoading({
                 status: true,
                 message: "Entrando na mesa",
-             });
-    
-             const table = await TableService.getTableDataByCode(tableCode)
-    
-             setTable(table);
-    
-          } catch (error) {
-             console.error(
-                "Falha ao recuperar dados da mesa:",
-                error
-             );
-    
-             router.replace("/table/join");
-          } finally {
-             setLoading({
+            });
+
+            const table = await TableService.getTableDataByCode(tableCode);
+
+            setTable(table);
+
+            await loadClients(table.tableId ?? "");
+        } catch (error) {
+            console.error("Falha ao recuperar dados da mesa:", error);
+
+            router.replace("/table/join");
+        } finally {
+            setLoading({
                 status: false,
                 message: "",
-             });
-          }
-       }
+            });
+        }
+    }
+
+    async function loadClients(tableId: string) {
+        try {
+            const clients = await ClientService.getTableClients(tableId);
+            setClients(clients);
+        } catch (error) {
+            console.error("Erro ao buscar clientes:", error);
+            setClients([]);
+        }
+    }
+
+    function handleItemPriceChange(value: string) {
+        const numericValue = value.replace(/\D/g, "");
+
+        if (!numericValue) {
+            setItemPrice(0);
+            setItemPriceText("");
+            return;
+        }
+
+        const price = Number(numericValue) / 100;
+
+        setItemPrice(price);
+
+        setItemPriceText(
+            price.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })
+        );
+    }
+
+    async function handleRegisterOrder() {
+        if (!table?.tableId) {
+            return;
+        }
+
+        try {
+            setLoading({
+                status: true,
+                message: "Gravando pedido",
+            });
+
+            const request: OrderRegisterRequest = {
+                orderId: null,
+                name: itemName,
+                unitPrice: itemPrice,
+                quantity: itemQuantity,
+                clientList: selectedClientIdList,
+            };
+
+            const order = await OrderService.registerOrder(
+                request,
+                table.tableId
+            );
+
+            setSuccessOrder(order);
+        } catch (error) {
+            console.error("Erro ao gravar pedido:", error);
+        } finally {
+            setLoading({
+                status: false,
+                message: "",
+            });
+        }
+    }
+
+    function formatCurrency(value: number) {
+        return value.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+        });
+    }
 
     return (
         <View style={baseStyle.app}>
             <Background type="home" />
+
             <View style={baseStyle.container}>
                 <View style={baseStyle.inputContainer}>
                     <TextInput
@@ -74,12 +169,16 @@ export default function createOrder() {
                         placeholderTextColor={theme.inputPlaceHolder}
                         onChangeText={setItemName}
                     />
+
                     <TextInput
                         style={baseStyle.inputStyle}
                         placeholder="Valor"
                         placeholderTextColor={theme.inputPlaceHolder}
-                        onChangeText={setItemPrice}
+                        keyboardType="numeric"
+                        value={itemPriceText}
+                        onChangeText={handleItemPriceChange}
                     />
+
                     <CustomNumberInput
                         label="Quantidade"
                         min={1}
@@ -87,15 +186,168 @@ export default function createOrder() {
                         value={itemQuantity}
                         onChange={setItemQuantity}
                     />
-                    <ClientSelect
-                        tableId={table?.tableId??""}
-                        value={selectedClientIdList}
-                        onChange={setSelectedClientIdList}
-                    />
 
-                    <Text style={baseStyle.textStyle}>create order screen.</Text>
+                    <ClientSelect
+                        clients={clients}
+                        selectedClientIds={selectedClientIdList}
+                        value={selectedClientId}
+                        onChange={(clientId) => {
+                            setSelectedClientIdList((current) => [
+                                ...current,
+                                clientId,
+                            ]);
+
+                            setSelectedClientId("");
+                        }}
+                    />
                 </View>
+
+                {selectedClientIdList.length > 0 && (
+                    <ScrollView
+                        style={[
+                            baseStyle.selectedClientsScroll,
+                            {
+                                maxHeight: screenHeight * 0.30,
+                                ...(Platform.OS === "web" && {
+                                    scrollbarWidth: "thin",
+                                    scrollbarColor: `${theme.primary} transparent`,
+                                }),
+                            },
+                        ]}
+                        contentContainerStyle={{
+                            alignItems: "flex-start",
+                            flexGrow: 1,
+                        }}
+                    >
+                        <View
+                            style={[
+                                baseStyle.selectedClientsContainer,
+                                {
+                                    height: "100%",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                },
+                            ]}
+                        >
+                            {selectedClientIdList.map((clientId) => {
+                                const client = clients.find(
+                                    (client) => client.clientId === clientId
+                                );
+
+                                if (!client) {
+                                    return null;
+                                }
+
+                                return (
+                                    <View
+                                        key={clientId}
+                                        style={baseStyle.selectedClientContainer}
+                                    >
+                                        <Text
+                                            style={baseStyle.selectedClientName}
+                                        >
+                                            {client.name}
+                                        </Text>
+
+                                        <Pressable
+                                            onPress={() => {
+                                                setSelectedClientIdList(
+                                                    (current) =>
+                                                        current.filter(
+                                                            (id) =>
+                                                                id !== clientId
+                                                        )
+                                                );
+                                            }}
+                                            style={({ pressed }) => [
+                                                baseStyle.removeClientButton,
+                                                {
+                                                    opacity: pressed ? 0.6 : 1,
+                                                },
+                                            ]}
+                                        >
+                                            <Text
+                                                style={
+                                                    baseStyle.removeClientButtonText
+                                                }
+                                            >
+                                                ×
+                                            </Text>
+                                        </Pressable>
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    </ScrollView>
+                )}
+
+                <ThemedButton
+                    title="Fazer pedido"
+                    onPress={handleRegisterOrder}
+                />
             </View>
+
+            {/* Loading */}
+            {loading.status && (
+                <View style={baseStyle.loadingOverlay}>
+                    <View style={baseStyle.loadingContainer}>
+                        <ActivityIndicator
+                            size="large"
+                            color={theme.primary}
+                        />
+                        {Boolean(loading.message) && (
+                            <Text style={baseStyle.loadingText}>
+                                {loading.message}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            )}
+
+            {/* Pedido gravado */}
+            {successOrder && (
+                <View style={baseStyle.modalOverlay}>
+                    <View style={baseStyle.modalContainer}>
+                        <Text style={baseStyle.modalTitle}>
+                            Pedido gravado!
+                        </Text>
+
+                        <View style={baseStyle.modalContent}>
+                            <Text style={baseStyle.modalItemName}>
+                                {successOrder.name}
+                            </Text>
+
+                            <Text style={baseStyle.modalInfo}>
+                                Valor unitário:{" "}
+                                {formatCurrency(successOrder.unitPrice)}
+                            </Text>
+
+                            <Text style={baseStyle.modalInfo}>
+                                Quantidade: {successOrder.quantity}
+                            </Text>
+
+                            <Text style={baseStyle.modalInfo}>
+                                Total:{" "}
+                                {formatCurrency(
+                                    successOrder.unitPrice *
+                                    successOrder.quantity
+                                )}
+                            </Text>
+                        </View>
+
+                        <ThemedButton
+                            title="Confirmar"
+                            onPress={() => {
+                                setSuccessOrder(null);
+
+                                router.replace(
+                                    `/table/${tableCode}`
+                                );
+                            }}
+                        />
+                    </View>
+                </View>
+            )}
         </View>
     );
-};
+}

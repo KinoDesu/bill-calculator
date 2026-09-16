@@ -18,6 +18,8 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         height: '100%',
     },
     container: {
+        width: "95%",
+        alignSelf: "center",
         flex: 1,
         flexDirection: "column",
         alignItems: "center",
@@ -43,6 +45,9 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         textAlign: "center",
     },
     headerTitleStyle: {
+        alignSelf: "center",
+        textAlign: "center",
+        overflow: "hidden",
         color: theme.primary,
         fontSize: 24,
         fontWeight: "900",
@@ -63,8 +68,8 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     buttonStyle: {
         width: "100%",
         maxWidth: 350,
-        height: 50, // Defina a altura diretamente em vez de usar maxHeight/height: 100%
-        backgroundColor: '#443C68',
+        height: 50,
+        backgroundColor: theme.button,
         borderRadius: 10,
         justifyContent: "center", // Centraliza o texto verticalmente
         alignItems: "center",
@@ -84,7 +89,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         width: 50,
         height: 50,
 
-        backgroundColor: "#443C68",
+        backgroundColor: theme.button,
         borderRadius: 8,
 
         alignItems: "center",
@@ -92,7 +97,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     squareButtonTextStyle: {
-        color: "#FFFFFF",
+        color: theme.primary,
         fontSize: 20,
         fontWeight: "800",
     },
@@ -156,12 +161,12 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         height: 50,
 
         borderWidth: 1,
-        borderColor: "#FFFFFF",
+        borderColor: theme.inputBorder,
         borderRadius: 8,
 
-        backgroundColor: "#000000",
+        backgroundColor: theme.background,
 
-        color: "#FFFFFF",
+        color: theme.primary,
         fontSize: 24,
         fontWeight: "800",
         textAlign: "center",
@@ -234,6 +239,8 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     orderBox: {
+        width:"100%",
+        maxWidth:350,
         backgroundColor: theme.button,
         borderWidth: 1,
         borderColor: theme.inputBorder,
@@ -249,8 +256,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     orderInfo: {
-        flex: 1,
-        minWidth: 0,
+        flex:1,
         flexDirection: "column",
         justifyContent: "space-between",
         alignItems: "flex-start",
@@ -261,7 +267,6 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         display: "flex",
         flexDirection: "row",
         flexWrap: "wrap",
-        width: "100%",
         padding: 10,
         borderTopWidth: 1,
         gap: 8,
@@ -284,6 +289,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     OrderClientContainer: {
+        width:"auto",
         backgroundColor: theme.button,
         padding: 5,
         borderRadius: 10,
@@ -296,24 +302,30 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         fontSize: 12,
         fontWeight: 600,
     },
+    // client select
+    clientSelectContainer: {
+        width: "100%",
+        maxWidth: 350,
+        zIndex: 10,
+        position: "relative",
+    },
 
     clientInputContainer: {
         width: "100%",
-        maxWidth: 350,
         flexDirection: "row",
         alignItems: "center",
-        textAlign: "center",
-        userSelect: "none",
         gap: 5,
+        userSelect: "none",
     },
+
     clientInput: {
-        width:"100%",
-        maxWidth: 295,
+        flex: 1,
         height: 50,
+        width: "100%",
+
         backgroundColor: theme.background,
+
         borderRadius: 10,
-        justifyContent: "center",
-        alignItems: "center",
         paddingHorizontal: 10,
 
         borderWidth: 1,
@@ -323,11 +335,12 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         fontSize: 24,
         fontWeight: "700",
     },
+
     clientInputButtonStyle: {
         width: 50,
         height: 50,
 
-        backgroundColor: "#443C68",
+        backgroundColor: theme.button,
         borderRadius: 8,
 
         alignItems: "center",
@@ -335,20 +348,206 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     clientInputButtonTextStyle: {
-        color: "#FFFFFF",
+        color: theme.primary,
         fontSize: 20,
         fontWeight: "800",
     },
 
     clientInputListContainer: {
+        position: "absolute",
+
+        top: 55,
+        left: 0,
+        right: 0,
+
         maxHeight: 250,
-        width: "100%",
-        maxWidth: 350,
-        backgroundColor:
-            theme.secondaryBackground,
+
+        backgroundColor: theme.secondaryBackground,
+
         borderWidth: 1,
         borderColor: theme.inputBorder,
         borderRadius: 10,
-        marginTop: 5,
-    }
+
+        overflow: "hidden",
+
+        // Faz o dropdown ficar na frente
+        zIndex: 1000,
+        elevation: 1000,
+    },
+
+    selectedClientsScroll: {
+        width: "100%",
+        maxHeight: 300,
+        marginTop: 10,
+    },
+
+    selectedClientsContainer: {
+        alignSelf: "center",
+        width: "100%",
+        maxWidth: 350,
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        alignItems: "flex-start",
+        justifyContent: "space-around",
+        flexGrow: 1,
+        gap: 15,
+    },
+
+    selectedClientContainer: {
+        minHeight: 40,
+        width: "100%",
+        maxWidth: 150,
+
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around",
+
+        paddingLeft: 5,
+
+        backgroundColor: theme.secondaryBackground,
+
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+        borderRadius: 10,
+    },
+
+    selectedClientName: {
+        flex: 1,
+
+        color: theme.primary,
+        fontSize: 12,
+        fontWeight: "600",
+    },
+
+    removeClientButton: {
+        width: 40,
+        height: "100%",
+        minHeight: 40,
+
+        borderLeftWidth: 1,
+        borderColor: theme.inputBorder,
+        borderBottomRightRadius: 10,
+        borderTopRightRadius: 10,
+
+        backgroundColor: theme.button,
+
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    removeClientButtonText: {
+        color: theme.primary,
+        fontSize: 28,
+        fontWeight: "600",
+    },
+    // end client select
+
+    loadingOverlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+
+        alignItems: "center",
+        justifyContent: "center",
+
+        zIndex: 9999,
+        elevation: 9999,
+    },
+
+    loadingContainer: {
+        minWidth: 180,
+        padding: 25,
+
+        backgroundColor: theme.background,
+        borderRadius: 15,
+
+        alignItems: "center",
+        justifyContent: "center",
+
+        gap: 15,
+    },
+
+    loadingText: {
+        color: theme.primary,
+        fontSize: 18,
+        fontWeight: "700",
+        textAlign: "center",
+    },
+
+    modalOverlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+
+        alignItems: "center",
+        justifyContent: "center",
+
+        padding: 20,
+
+        zIndex: 10000,
+        elevation: 10000,
+    },
+
+    modalContainer: {
+        width: "100%",
+        maxWidth: 350,
+
+        backgroundColor: theme.background,
+
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+        borderRadius: 15,
+
+        padding: 20,
+
+        alignItems: "center",
+        justifyContent: "center",
+
+        gap: 20,
+    },
+
+    modalTitle: {
+        color: theme.primary,
+        fontSize: 28,
+        fontWeight: "800",
+        textAlign: "center",
+    },
+
+    modalContent: {
+        width: "100%",
+
+        backgroundColor: theme.secondaryBackground,
+
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+        borderRadius: 10,
+
+        padding: 15,
+
+        gap: 8,
+    },
+
+    modalItemName: {
+        color: theme.primary,
+        fontSize: 24,
+        fontWeight: "800",
+        textAlign: "center",
+        marginBottom: 5,
+    },
+
+    modalInfo: {
+        color: theme.primary,
+        fontSize: 18,
+        fontWeight: "600",
+    },
+
 });
