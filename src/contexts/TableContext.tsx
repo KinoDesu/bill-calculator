@@ -19,12 +19,15 @@ export function TableProvider({
    children: React.ReactNode;
 }) {
    const [table, setTable] = useState<Table | null>(null);
+   const [orderClientList, setOrderClientList] = useState<OrderClient[]>([]);
 
    return (
       <TableContext.Provider
          value={{
             table,
             setTable,
+            orderClientList,
+            setOrderClientList,
          }}
       >
          {children}

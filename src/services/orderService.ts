@@ -1,17 +1,32 @@
 import { Order } from "@/models/Order";
-import { api } from "./api";
+import { api, getApiError } from "./api";
 
 export class OrderService {
     static async getOrdersByTableId(tableId: string): Promise<Order[]> {
-        if (!tableId) {
-            throw new Error(`Identificador de mesa nulo`);
-        }
-        const response = await api.get(`/table/${tableId}/orders`)
+        try {
 
-        if (response.status !== 200) {
-            throw new Error(`Falha ao buscar pedidos: code: ${response.status}, data: ${response.data}`);
-        }
+            if (!tableId) {
+                throw new Error(`Identificador de mesa nulo`);
+            }
+            const response = await api.get(`/table/${tableId}/orders`)
 
-        return response.data;
+            return response.data;
+            
+        } catch (error) {
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
+            }
+
+            throw error;
+        }
     }
 }

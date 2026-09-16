@@ -1,51 +1,97 @@
 import { QrCode } from "@/models/QrCode";
 import { Table } from "@/models/Table";
 import { TableRegisterRequest } from "@/models/TableRegisterRequest";
-import { api } from "./api";
+import { api, getApiError } from "./api";
 
 export class TableService {
-    
-    static async getQrCode(tableId: string): Promise<QrCode> {
-        const response = await api.get<QrCode>(
-            `/table/${tableId}/qrCode`,
-            {
-                timeout: 3000,
-            }
-        );
 
-        if (!response.data) {
-            throw new Error(`Não foi possível recuperar o QR Code. code: ${response.status}, data: ${response.data}`);
+    static async getQrCode(tableId: string): Promise<QrCode> {
+
+        try {
+
+            const response = await api.get<QrCode>(
+                `/table/${tableId}/qrCode`,
+                {
+                    timeout: 3000,
+                }
+            );
+
+            return response.data;
+
+        } catch (error) {
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
+            }
+
+            throw error;
         }
 
-        return response.data;
     }
 
     static async registerTable(request: TableRegisterRequest): Promise<Table> {
 
-        const response = await api.post<Table>(
-            `/table`,
-            request
-        );
+        try {
+            const response = await api.post<Table>(
+                `/table`,
+                request
+            );
 
-        if (response.status !== 201) {
-            throw new Error(`Falha ao criar mesa: code: ${response.status}, data: ${response.data}`);
+            return response.data;
+
+        } catch (error) {
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
+            }
+
+            throw error;
         }
-
-        return response.data;
     }
 
     static async getTableDataByCode(tableCode: string): Promise<Table> {
-        const response = await api.get<Table>(
-            `/table/code/${tableCode}`,
-            {
-                timeout: 3000,
+
+        try {
+            const response = await api.get<Table>(
+                `/table/code/${tableCode}`,
+                {
+                    timeout: 3000,
+                }
+            );
+
+            return response.data;
+
+        } catch (error) {
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
             }
-        );
 
-        if (!response.data) {
-            throw new Error("Mesa não encontrada");
+            throw error;
         }
-
-        return response.data;
     }
 }

@@ -123,7 +123,6 @@ export default function registerClients() {
                             for (const name of clientNames) {
                                 const request: ClientRegisterRequest = {
                                     name: name.trim(),
-                                    bot: true,
                                     clientId: null,
                                 };
 

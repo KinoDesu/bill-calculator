@@ -173,9 +173,9 @@ export default function TableRoom() {
                      alignItems: "center",
                      flexGrow: 1,
                   }}>
-                     <View style={baseStyle.orderBoxContainer}>
+                     <View style={[baseStyle.orderBoxContainer, { height: "100%", alignItems: "center", justifyContent: "center" }]}>
                         {orderList.length === 0 ? (
-                           <Text style={baseStyle.textStyle}>
+                           <Text style={[baseStyle.headerTitleStyle]}>
                               Nenhum pedido registrado.
                            </Text>
                         ) : (
@@ -202,7 +202,14 @@ export default function TableRoom() {
                      <View style={styles.bottomMenuLeftContainerStyle}>
                         <SquareButton
                            title="P"
-                           onPress={() => console.log("Pedido")}
+                           onPress={() => {
+                              router.replace({
+                                 pathname: "/table/[tableCode]/order/create",
+                                 params: {
+                                    tableCode,
+                                 },
+                              });
+                           }}
                         />
 
                         <SquareButton

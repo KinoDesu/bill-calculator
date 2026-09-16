@@ -106,10 +106,10 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         alignItems: "center",
         justifyContent: "center",
         gap: 20,
+        maxWidth: 350,
     },
     inputStyle: {
         width: "100%",
-        maxWidth: 350,
         height: 50,
         backgroundColor: theme.background,
         borderRadius: 10,
@@ -295,5 +295,60 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         color: theme.primary,
         fontSize: 12,
         fontWeight: 600,
+    },
+
+    clientInputContainer: {
+        width: "100%",
+        maxWidth: 350,
+        flexDirection: "row",
+        alignItems: "center",
+        textAlign: "center",
+        userSelect: "none",
+        gap: 5,
+    },
+    clientInput: {
+        width:"100%",
+        maxWidth: 295,
+        height: 50,
+        backgroundColor: theme.background,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 10,
+
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+
+        color: theme.primary,
+        fontSize: 24,
+        fontWeight: "700",
+    },
+    clientInputButtonStyle: {
+        width: 50,
+        height: 50,
+
+        backgroundColor: "#443C68",
+        borderRadius: 8,
+
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    clientInputButtonTextStyle: {
+        color: "#FFFFFF",
+        fontSize: 20,
+        fontWeight: "800",
+    },
+
+    clientInputListContainer: {
+        maxHeight: 250,
+        width: "100%",
+        maxWidth: 350,
+        backgroundColor:
+            theme.secondaryBackground,
+        borderWidth: 1,
+        borderColor: theme.inputBorder,
+        borderRadius: 10,
+        marginTop: 5,
     }
 });
