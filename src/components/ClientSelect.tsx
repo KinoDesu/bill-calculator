@@ -1,6 +1,5 @@
-import { useTheme } from "@/hooks/use-theme";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { Client } from "@/models/Client";
-import { BaseStyle } from "@/styles/baseStyle";
 import { useEffect, useState } from "react";
 import {
     FlatList,
@@ -26,13 +25,7 @@ export default function ClientSelect({
     const [open, setOpen] = useState(false);
     const [clientName, setClientName] = useState("");
 
-    const theme = useTheme();
-
-    if (!theme.isReady) {
-        return null; // não renderiza nada até saber o tema de verdade
-    }
-
-    const baseStyle = BaseStyle(theme);
+    const baseStyle = useBaseStyle();
 
     useEffect(() => {
         const selectedClient = clients.find(
@@ -76,13 +69,13 @@ export default function ClientSelect({
     });
 
     return (
-        <View style={baseStyle.clientSelectContainer}>
+        <View style={baseStyle.style.clientSelectContainer}>
             {/* Campo de seleção */}
-            <View style={baseStyle.clientInputContainer}>
+            <View style={baseStyle.style.clientInputContainer}>
                 <TextInput
-                    style={baseStyle.clientInput}
+                    style={baseStyle.style.clientInput}
                     placeholder="Nome do cliente"
-                    placeholderTextColor={theme.inputPlaceHolder}
+                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                     value={clientName}
                     onChangeText={handleChangeName}
                     editable={clients.length > 0}
@@ -95,7 +88,7 @@ export default function ClientSelect({
                     onPress={() => setOpen((current) => !current)}
                     disabled={clients.length === 0}
                     style={({ hovered, pressed }) => [
-                        baseStyle.clientInputButtonStyle,
+                        baseStyle.style.clientInputButtonStyle,
                         {
                             opacity: clients.length === 0 ? 0.5 : 1,
                             transform: [
@@ -110,7 +103,7 @@ export default function ClientSelect({
                         },
                     ]}
                 >
-                    <Text style={baseStyle.clientInputButtonTextStyle}>
+                    <Text style={baseStyle.style.clientInputButtonTextStyle}>
                         {open ? "▴" : "▾"}
                     </Text>
                 </Pressable>
@@ -118,10 +111,10 @@ export default function ClientSelect({
 
             {/* Dropdown */}
             {open && (
-                <View style={baseStyle.clientInputListContainer}>
+                <View style={baseStyle.style.clientInputListContainer}>
                     {filteredClients.length === 0 ? (
                         <View style={{ padding: 16 }}>
-                            <Text style={baseStyle.textStyle}>
+                            <Text style={baseStyle.style.textStyle}>
                                 Nenhum cliente encontrado
                             </Text>
                         </View>
@@ -139,14 +132,14 @@ export default function ClientSelect({
                                             paddingHorizontal: 16,
                                         },
                                         hovered && {
-                                            backgroundColor: theme.primary + "20",
+                                            backgroundColor: baseStyle.theme.primary + "20",
                                         },
                                         pressed && {
-                                            backgroundColor: theme.primary + "40",
+                                            backgroundColor: baseStyle.theme.primary + "40",
                                         },
                                     ]}
                                 >
-                                    <Text style={baseStyle.textStyle}>
+                                    <Text style={baseStyle.style.textStyle}>
                                         {item.name}
                                     </Text>
                                 </Pressable>

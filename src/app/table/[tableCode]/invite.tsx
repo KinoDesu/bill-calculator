@@ -1,9 +1,8 @@
 import { Background } from "@/components/background";
-import { useTheme } from "@/hooks/use-theme";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { QrCode } from "@/models/QrCode";
 import { Table } from "@/models/Table";
 import { TableService } from "@/services/tableService";
-import { BaseStyle } from "@/styles/baseStyle";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
@@ -13,13 +12,7 @@ export default function Invite() {
         tableCode: string;
     }>();
 
-    const theme = useTheme();
-
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+    const baseStyle = useBaseStyle();
 
     const [table, setTable] = useState<Table | null>(null);
     const [qrCode, setQrcode] = useState<QrCode>();
@@ -86,18 +79,18 @@ export default function Invite() {
             {loading.status ? (
                 <View
                     style={[
-                        baseStyle.app,
+                        baseStyle.style.app,
                         styles.loadingContainer,
                     ]}
                 >
                     <ActivityIndicator
                         size="large"
-                        color={theme.primary}
+                        color={baseStyle.theme.primary}
                     />
 
                     <Text
                         style={[
-                            baseStyle.textStyle,
+                            baseStyle.style.textStyle,
                             {
                                 marginTop: 16,
                             },
@@ -107,30 +100,30 @@ export default function Invite() {
                     </Text>
                 </View>
             ) : !table ? null : (
-                <View style={baseStyle.app}>
+                <View style={baseStyle.style.app}>
                     <Background type="home" />
-                    <View style={baseStyle.container}>
+                    <View style={baseStyle.style.container}>
                         {qrCode && (
-                            <View style={baseStyle.inputContainer}>
-                                <View style={baseStyle.qrCodeContainer}>
-                                    <View style={baseStyle.scanArea}>
+                            <View style={baseStyle.style.inputContainer}>
+                                <View style={baseStyle.style.qrCodeContainer}>
+                                    <View style={baseStyle.style.scanArea}>
                                         <Image
                                             source={{
                                                 uri: `data:image/png;base64,${qrCode.qrCode}`,
                                             }}
-                                            style={baseStyle.qrCode}
+                                            style={baseStyle.style.qrCode}
                                             resizeMode="contain"
                                         />
                                     </View>
                                 </View>
                                 <View style={{
-                                    display:"flex",
-                                    flexDirection:"column",
-                                    justifyContent:"center",
-                                    alignItems:"center"
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center"
                                 }}>
-                                    <Text style={baseStyle.headerTitleStyle}>Código da sala</Text>
-                                    <Text style={baseStyle.headerTitleStyle}>{qrCode.code}</Text>
+                                    <Text style={baseStyle.style.headerTitleStyle}>Código da sala</Text>
+                                    <Text style={baseStyle.style.headerTitleStyle}>{qrCode.code}</Text>
                                 </View>
                             </View>
                         )}

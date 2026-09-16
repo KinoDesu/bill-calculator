@@ -1,21 +1,29 @@
-// use-color-scheme.web.ts
-import { useLayoutEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
-
-// useLayoutEffect não existe durante build estático (sem DOM no Node);
-// nesse caso vira um no-op sem problema.
-const useIsomorphicLayoutEffect =
-  typeof window !== 'undefined' ? useLayoutEffect : () => {};
+import { useEffect, useState } from "react";
 
 export function useColorScheme() {
-  const [hasHydrated, setHasHydrated] = useState(false);
+    const [colorScheme, setColorScheme] = useState<"light" | "dark" | undefined>(
+        undefined
+    );
 
-  useIsomorphicLayoutEffect(() => {
-    setHasHydrated(true);
-  }, []);
+    useEffect(() => {
+        const mediaQuery = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        );
 
-  const colorScheme = useRNColorScheme();
+        const updateColorScheme = () => {
+            setColorScheme(mediaQuery.matches ? "dark" : "light");
+        };
 
-  // undefined = "ainda não sei", em vez de assumir 'light'
-  return hasHydrated ? colorScheme : undefined;
+        // Descobre o tema depois da montagem
+        updateColorScheme();
+
+        // Escuta mudanças futuras
+        mediaQuery.addEventListener("change", updateColorScheme);
+
+        return () => {
+            mediaQuery.removeEventListener("change", updateColorScheme);
+        };
+    }, []);
+
+    return colorScheme;
 }

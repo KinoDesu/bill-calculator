@@ -1,5 +1,4 @@
-import { useTheme } from "@/hooks/use-theme";
-import { BaseStyle } from "@/styles/baseStyle";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { Text, TextInput, View } from "react-native";
 import { SquareButton } from "./squareButton";
 
@@ -18,13 +17,9 @@ export function CustomNumberInput({
   min = 0,
   max = 99,
 }: NumberInputProps) {
-  const theme = useTheme();
 
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+  const baseStyle = useBaseStyle();
+  
   function decrease() {
     if (value > min) {
       onChange(value - 1);
@@ -51,12 +46,12 @@ export function CustomNumberInput({
   }
 
   return (
-    <View style={baseStyle.numberInputContainer}>
-      <Text style={baseStyle.numberInputLabel}>
+    <View style={baseStyle.style.numberInputContainer}>
+      <Text style={baseStyle.style.numberInputLabel}>
         {label}
       </Text>
 
-      <View style={baseStyle.numberInputControls}>
+      <View style={baseStyle.style.numberInputControls}>
         <SquareButton
           title="-"
           onPress={decrease}
@@ -66,7 +61,7 @@ export function CustomNumberInput({
           value={String(value)}
           onChangeText={handleChange}
           keyboardType="number-pad"
-          style={baseStyle.numberInput}
+          style={baseStyle.style.numberInput}
         />
 
         <SquareButton

@@ -1,29 +1,22 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
-import { useTheme } from "@/hooks/use-theme";
-import { BaseStyle } from "@/styles/baseStyle";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { Text, View } from "react-native";
 
 export default function Index() {
 
-  const theme = useTheme();
+  const baseStyle = useBaseStyle();
 
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
-  
   return (
-    <View style={baseStyle.app}>
+    <View style={baseStyle.style.app}>
       <Background type="home" />
-      <View style={baseStyle.container}>
-        <Text style={baseStyle.appTitleStyle}>Calcula Conta</Text>
-        <View style={baseStyle.buttonContainer}>
+      <View style={baseStyle.style.container}>
+        <Text style={baseStyle.style.appTitleStyle}>Calcula Conta</Text>
+        <View style={baseStyle.style.buttonContainer}>
           <ThemedButton
             title="Criar uma mesa"
             href="/table/create"
-            />
+          />
           <ThemedButton
             title="Entrar em uma mesa"
             href="/table/join"

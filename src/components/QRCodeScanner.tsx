@@ -1,5 +1,4 @@
-import { useTheme } from "@/hooks/use-theme";
-import { BaseStyle } from "@/styles/baseStyle";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useIsFocused } from "expo-router";
 import { useEffect, useState } from "react";
@@ -18,13 +17,7 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
 
     const [lastScannedData, setLastScannedData] = useState<string | null>(null);
 
-    const theme = useTheme();
-
-    if (!theme.isReady) {
-        return null; // não renderiza nada até saber o tema de verdade
-    }
-
-    const baseStyle = BaseStyle(theme);
+    const baseStyle = useBaseStyle();
 
     useEffect(() => {
         if (isFocused) {
@@ -44,13 +37,13 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
 
     if (!permission.granted) {
         return (
-            <View style={baseStyle.permissionContainer}>
-                <Text style={baseStyle.permissionText}>
+            <View style={baseStyle.style.permissionContainer}>
+                <Text style={baseStyle.style.permissionText}>
                     Precisamos acessar sua câmera para ler o QR Code.
                 </Text>
 
                 <Pressable onPress={requestPermission}>
-                    <Text style={baseStyle.permissionButton}>
+                    <Text style={baseStyle.style.permissionButton}>
                         Permitir acesso à câmera
                     </Text>
                 </Pressable>
@@ -64,10 +57,10 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
     }
 
     return (
-        <View style={baseStyle.qrCodeContainer}>
-            <View style={baseStyle.scanArea}>
+        <View style={baseStyle.style.qrCodeContainer}>
+            <View style={baseStyle.style.scanArea}>
                 <CameraView
-                    style={baseStyle.camera}
+                    style={baseStyle.style.camera}
                     facing={facing}
                     ratio="1:1"
                     barcodeScannerSettings={{

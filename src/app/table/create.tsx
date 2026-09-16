@@ -3,25 +3,18 @@ import { ThemedButton } from "@/components/button";
 import { CustomNumberInput } from "@/components/customNumberInput";
 import { environment } from "@/config/environment";
 import { useSession } from "@/contexts/SessionContext";
-import { useTheme } from "@/hooks/use-theme";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { ClientRegisterRequest } from "@/models/ClientRegisterRequest";
 import { Table } from "@/models/Table";
 import { TableRegisterRequest } from "@/models/TableRegisterRequest";
 import { ClientService } from "@/services/clientService";
 import { TableService } from "@/services/tableService";
-import { BaseStyle } from "@/styles/baseStyle";
 import { router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Text, TextInput, View } from "react-native";
 
 export default function createTable() {
-   const theme = useTheme();
-
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+   const baseStyle = useBaseStyle();
 
    const { saveSession } = useSession();
 
@@ -86,22 +79,22 @@ export default function createTable() {
    }
 
    return (
-      <View style={baseStyle.app}>
+      <View style={baseStyle.style.app}>
          <Background type="createTable" />
 
-         <View style={baseStyle.container}>
-            <View style={baseStyle.inputContainer}>
+         <View style={baseStyle.style.container}>
+            <View style={baseStyle.style.inputContainer}>
                <TextInput
-                  style={baseStyle.inputStyle}
+                  style={baseStyle.style.inputStyle}
                   placeholder="Seu nome"
-                  placeholderTextColor={theme.inputPlaceHolder}
+                  placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                   onChangeText={setClientName}
                />
 
                <TextInput
-                  style={baseStyle.inputStyle}
+                  style={baseStyle.style.inputStyle}
                   placeholder="Nome da mesa"
-                  placeholderTextColor={theme.inputPlaceHolder}
+                  placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                   onChangeText={setTableName}
                />
 
@@ -117,12 +110,12 @@ export default function createTable() {
                   <View>
                      <ActivityIndicator
                         size="large"
-                        color={theme.primary}
+                        color={baseStyle.theme.primary}
                      />
 
                      <Text
                         style={[
-                           baseStyle.textStyle,
+                           baseStyle.style.textStyle,
                            {
                               marginTop: 16,
                            },
@@ -133,7 +126,7 @@ export default function createTable() {
                   </View>
                ) : null}
 
-               <View style={baseStyle.buttonContainer} />
+               <View style={baseStyle.style.buttonContainer} />
             </View>
 
             <ThemedButton

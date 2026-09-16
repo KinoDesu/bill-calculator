@@ -2,7 +2,7 @@ import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
 import ClientSelect from "@/components/ClientSelect";
 import { CustomNumberInput } from "@/components/customNumberInput";
-import { useTheme } from "@/hooks/use-theme";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { Client } from "@/models/Client";
 import { Order } from "@/models/Order";
 import { OrderRegisterRequest } from "@/models/OrderRegisterRequest";
@@ -10,7 +10,6 @@ import { Table } from "@/models/Table";
 import { ClientService } from "@/services/clientService";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
-import { BaseStyle } from "@/styles/baseStyle";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -31,13 +30,7 @@ export default function CreateOrder() {
 
     const { height: screenHeight } = useWindowDimensions();
 
-    const theme = useTheme();
-
-    if (!theme.isReady) {
-        return null; // não renderiza nada até saber o tema de verdade
-    }
-
-    const baseStyle = BaseStyle(theme);
+    const baseStyle = useBaseStyle();
 
     const [itemName, setItemName] = useState("");
     const [itemPrice, setItemPrice] = useState(0);
@@ -163,15 +156,15 @@ export default function CreateOrder() {
     }
 
     return (
-        <View style={baseStyle.app}>
+        <View style={baseStyle.style.app}>
             <Background type="home" />
 
-            <View style={baseStyle.container}>
-                <View style={baseStyle.inputContainer}>
+            <View style={baseStyle.style.container}>
+                <View style={baseStyle.style.inputContainer}>
                     <TextInput
-                        style={baseStyle.inputStyle}
+                        style={baseStyle.style.inputStyle}
                         placeholder="Item"
-                        placeholderTextColor={theme.inputPlaceHolder}
+                        placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                         onChangeText={setItemName}
                     />
 
@@ -184,13 +177,13 @@ export default function CreateOrder() {
                         alignItems: "center",
                         gap: 5,
                     }]}>
-                        <Text style={[baseStyle.buttonText]}>
+                        <Text style={[baseStyle.style.buttonText]}>
                             R$
                         </Text>
                         <TextInput
-                            style={[baseStyle.inputStyle, { width: 200 }]}
+                            style={[baseStyle.style.inputStyle, { width: 200 }]}
                             placeholder="Valor"
-                            placeholderTextColor={theme.inputPlaceHolder}
+                            placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                             keyboardType="numeric"
                             value={itemPriceText}
                             onChangeText={handleItemPriceChange}
@@ -223,12 +216,12 @@ export default function CreateOrder() {
                 {selectedClientIdList.length > 0 && (
                     <ScrollView
                         style={[
-                            baseStyle.selectedClientsScroll,
+                            baseStyle.style.selectedClientsScroll,
                             {
                                 maxHeight: screenHeight * 0.30,
                                 ...(Platform.OS === "web" && {
                                     scrollbarWidth: "thin",
-                                    scrollbarColor: `${theme.primary} transparent`,
+                                    scrollbarColor: `${baseStyle.theme.primary} transparent`,
                                 }),
                             },
                         ]}
@@ -239,7 +232,7 @@ export default function CreateOrder() {
                     >
                         <View
                             style={[
-                                baseStyle.selectedClientsContainer,
+                                baseStyle.style.selectedClientsContainer,
                                 {
                                     height: "100%",
                                     alignItems: "center",
@@ -259,10 +252,10 @@ export default function CreateOrder() {
                                 return (
                                     <View
                                         key={clientId}
-                                        style={baseStyle.selectedClientContainer}
+                                        style={baseStyle.style.selectedClientContainer}
                                     >
                                         <Text
-                                            style={baseStyle.selectedClientName}
+                                            style={baseStyle.style.selectedClientName}
                                         >
                                             {client.name}
                                         </Text>
@@ -278,7 +271,7 @@ export default function CreateOrder() {
                                                 );
                                             }}
                                             style={({ pressed }) => [
-                                                baseStyle.removeClientButton,
+                                                baseStyle.style.removeClientButton,
                                                 {
                                                     opacity: pressed ? 0.6 : 1,
                                                 },
@@ -286,7 +279,7 @@ export default function CreateOrder() {
                                         >
                                             <Text
                                                 style={
-                                                    baseStyle.removeClientButtonText
+                                                    baseStyle.style.removeClientButtonText
                                                 }
                                             >
                                                 ×
@@ -307,14 +300,14 @@ export default function CreateOrder() {
 
             {/* Loading */}
             {loading.status && (
-                <View style={baseStyle.loadingOverlay}>
-                    <View style={baseStyle.loadingContainer}>
+                <View style={baseStyle.style.loadingOverlay}>
+                    <View style={baseStyle.style.loadingContainer}>
                         <ActivityIndicator
                             size="large"
-                            color={theme.primary}
+                            color={baseStyle.theme.primary}
                         />
                         {Boolean(loading.message) && (
-                            <Text style={baseStyle.loadingText}>
+                            <Text style={baseStyle.style.loadingText}>
                                 {loading.message}
                             </Text>
                         )}
@@ -324,27 +317,27 @@ export default function CreateOrder() {
 
             {/* Pedido gravado */}
             {successOrder && (
-                <View style={baseStyle.modalOverlay}>
-                    <View style={baseStyle.modalContainer}>
-                        <Text style={baseStyle.modalTitle}>
+                <View style={baseStyle.style.modalOverlay}>
+                    <View style={baseStyle.style.modalContainer}>
+                        <Text style={baseStyle.style.modalTitle}>
                             Pedido gravado!
                         </Text>
 
-                        <View style={baseStyle.modalContent}>
-                            <Text style={baseStyle.modalItemName}>
+                        <View style={baseStyle.style.modalContent}>
+                            <Text style={baseStyle.style.modalItemName}>
                                 {successOrder.name}
                             </Text>
 
-                            <Text style={baseStyle.modalInfo}>
+                            <Text style={baseStyle.style.modalInfo}>
                                 Valor unitário:{" "}
                                 {formatCurrency(successOrder.unitPrice)}
                             </Text>
 
-                            <Text style={baseStyle.modalInfo}>
+                            <Text style={baseStyle.style.modalInfo}>
                                 Quantidade: {successOrder.quantity}
                             </Text>
 
-                            <Text style={baseStyle.modalInfo}>
+                            <Text style={baseStyle.style.modalInfo}>
                                 Total:{" "}
                                 {formatCurrency(
                                     successOrder.unitPrice *

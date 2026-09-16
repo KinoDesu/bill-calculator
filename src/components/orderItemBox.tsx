@@ -1,6 +1,5 @@
-import { useTheme } from "@/hooks/use-theme";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { Order } from "@/models/Order";
-import { BaseStyle } from "@/styles/baseStyle";
 import { Pressable, Text, View } from "react-native";
 
 interface OrderItemBoxProps {
@@ -14,26 +13,21 @@ export function OrderItemBox({
   expanded,
   onPress,
 }: OrderItemBoxProps) {
-  const theme = useTheme();
 
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+  const baseStyle = useBaseStyle();
 
   return (
-    <View style={baseStyle.orderBox}>
+    <View style={baseStyle.style.orderBox}>
       <Pressable onPress={onPress}>
-        <View style={baseStyle.orderBoxHeader}>
-          <View style={baseStyle.orderInfo}>
-            <Text style={baseStyle.orderName}
+        <View style={baseStyle.style.orderBoxHeader}>
+          <View style={baseStyle.style.orderInfo}>
+            <Text style={baseStyle.style.orderName}
               numberOfLines={1}
               ellipsizeMode="tail">
               {order.name}
             </Text>
 
-            <Text style={baseStyle.orderPrice}>
+            <Text style={baseStyle.style.orderPrice}>
               {order.quantity} x {order.unitPrice.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
@@ -41,21 +35,21 @@ export function OrderItemBox({
             </Text>
           </View>
           {!expanded ? (
-            <Text style={baseStyle.textStyle}>+</Text>
+            <Text style={baseStyle.style.textStyle}>+</Text>
 
-          ) : (<Text style={baseStyle.textStyle}>-</Text>)
+          ) : (<Text style={baseStyle.style.textStyle}>-</Text>)
           }
         </View>
       </Pressable>
 
       {expanded && (
-        <View style={baseStyle.orderDetails}>
+        <View style={baseStyle.style.orderDetails}>
           {
             order.clients.map((orderClient) => (
-              <View key={orderClient.clientId} style={baseStyle.OrderClientContainer}>
+              <View key={orderClient.clientId} style={baseStyle.style.OrderClientContainer}>
                 <Text
                   key={orderClient.clientId}
-                  style={baseStyle.OrderClientName}
+                  style={baseStyle.style.OrderClientName}
                 >
                   {orderClient.clientName}
                 </Text>

@@ -1,7 +1,7 @@
 import { useTheme } from "@/hooks/use-theme";
 import { StyleSheet } from "react-native";
 
-export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
+const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     app: {
         flex: 1,
         margin: 0,
@@ -239,8 +239,8 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     orderBox: {
-        width:"100%",
-        maxWidth:350,
+        width: "100%",
+        maxWidth: 350,
         backgroundColor: theme.button,
         borderWidth: 1,
         borderColor: theme.inputBorder,
@@ -256,7 +256,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     orderInfo: {
-        flex:1,
+        flex: 1,
         flexDirection: "column",
         justifyContent: "space-between",
         alignItems: "flex-start",
@@ -289,7 +289,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
     OrderClientContainer: {
-        width:"auto",
+        width: "auto",
         backgroundColor: theme.button,
         padding: 5,
         borderRadius: 10,
@@ -551,3 +551,8 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     },
 
 });
+
+export const BaseStyle = {
+    theme: useTheme,
+    style,
+};

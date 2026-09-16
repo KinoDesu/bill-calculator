@@ -2,12 +2,11 @@ import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
 import { QRCodeScanner } from "@/components/QRCodeScanner";
 import { useSession } from "@/contexts/SessionContext";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
-import { useTheme } from "@/hooks/use-theme";
 import { Table } from "@/models/Table";
 import { api } from "@/services/api";
 import { TableSessionService } from "@/services/tableSessionService";
-import { BaseStyle } from "@/styles/baseStyle";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -19,13 +18,7 @@ import {
 } from "react-native";
 
 export default function JoinTable() {
-    const theme = useTheme();
-
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+    const baseStyle = useBaseStyle();
 
     const [tableCode, setTableCode] = useState("");
     const [loading, setLoading] = useState(false);
@@ -119,11 +112,11 @@ export default function JoinTable() {
     }
 
     return (
-        <View style={baseStyle.app}>
+        <View style={baseStyle.style.app}>
             <Background type="joinTable" />
 
-            <View style={baseStyle.container}>
-                <View style={baseStyle.inputContainer}>
+            <View style={baseStyle.style.container}>
+                <View style={baseStyle.style.inputContainer}>
                     <QRCodeScanner
                         onRead={(data) => {
                             try {
@@ -144,9 +137,9 @@ export default function JoinTable() {
                     />
 
                     <TextInput
-                        style={baseStyle.inputStyle}
+                        style={baseStyle.style.inputStyle}
                         placeholder="Código da sala"
-                        placeholderTextColor={theme.inputPlaceHolder}
+                        placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                         onChangeText={(newValue) =>
                             setTableCode(newValue)
                         }
@@ -156,12 +149,12 @@ export default function JoinTable() {
                         <View>
                             <ActivityIndicator
                                 size="large"
-                                color={theme.primary}
+                                color={baseStyle.theme.primary}
                             />
 
                             <Text
                                 style={[
-                                    baseStyle.textStyle,
+                                    baseStyle.style.textStyle,
                                     {
                                         marginTop: 16,
                                     },
@@ -198,14 +191,14 @@ export default function JoinTable() {
                         style={{
                             width: "100%",
                             maxWidth: 400,
-                            backgroundColor: theme.background,
+                            backgroundColor: baseStyle.theme.background,
                             borderRadius: 20,
                             padding: 24,
                         }}
                     >
                         <Text
                             style={[
-                                baseStyle.headerTitleStyle,
+                                baseStyle.style.headerTitleStyle,
                                 {
                                     marginBottom: 12,
                                 },
@@ -216,7 +209,7 @@ export default function JoinTable() {
 
                         <Text
                             style={[
-                                baseStyle.textStyle,
+                                baseStyle.style.textStyle,
                                 {
                                     marginBottom: 24,
                                 },

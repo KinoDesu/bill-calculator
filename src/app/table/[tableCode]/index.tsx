@@ -1,12 +1,11 @@
 import { Background } from "@/components/background";
 import { OrderItemBox } from "@/components/orderItemBox";
 import { SquareButton } from "@/components/squareButton";
-import { useTheme } from "@/hooks/use-theme";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { Order } from "@/models/Order";
 import { Table } from "@/models/Table";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
-import { BaseStyle } from "@/styles/baseStyle";
 import {
    router,
    Stack,
@@ -27,13 +26,7 @@ export default function TableRoom() {
       tableCode: string;
    }>();
 
-   const theme = useTheme();
-
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+   const baseStyle = useBaseStyle();
 
    const [table, setTable] = useState<Table | null>(null);
    const [orderList, setOrderList] = useState<Order[]>([]);
@@ -100,10 +93,10 @@ export default function TableRoom() {
          <Stack.Screen
             options={{
                headerShown: !loading.status,
-               headerStyle: baseStyle.headerStyle,
-               headerTintColor: baseStyle.headerTintColor.tintColor,
-               headerTitleStyle: baseStyle.headerTitleStyle,
-               headerTitleAlign: baseStyle.headerTitleAlign.textAlign,
+               headerStyle: baseStyle.style.headerStyle,
+               headerTintColor: baseStyle.style.headerTintColor.tintColor,
+               headerTitleStyle: baseStyle.style.headerTitleStyle,
+               headerTitleAlign: baseStyle.style.headerTitleAlign.textAlign,
                title: table?.name ?? "",
 
                headerLeft: () => (
@@ -142,18 +135,18 @@ export default function TableRoom() {
          {loading.status ? (
             <View
                style={[
-                  baseStyle.app,
+                  baseStyle.style.app,
                   styles.loadingContainer,
                ]}
             >
                <ActivityIndicator
                   size="large"
-                  color={theme.primary}
+                  color={baseStyle.theme.primary}
                />
 
                <Text
                   style={[
-                     baseStyle.textStyle,
+                     baseStyle.style.textStyle,
                      {
                         marginTop: 16,
                      },
@@ -163,24 +156,24 @@ export default function TableRoom() {
                </Text>
             </View>
          ) : !table ? null : (
-            <View style={baseStyle.app}>
+            <View style={baseStyle.style.app}>
                <Background type="home" />
-               <View style={baseStyle.container}>
+               <View style={baseStyle.style.container}>
                   <ScrollView style={{
                      width: "100%",
                      paddingHorizontal: 15,
                      flex: 1,
                      ...(Platform.OS === "web" && {
                         scrollbarWidth: "thin",
-                        scrollbarColor: `${theme.primary} transparent`,
+                        scrollbarColor: `${baseStyle.theme.primary} transparent`,
                      })
                   }} contentContainerStyle={{
                      alignItems: "center",
                      flexGrow: 1,
                   }}>
-                     <View style={[baseStyle.orderBoxContainer, { height: "100%", alignItems: "center", justifyContent: "center" }]}>
+                     <View style={[baseStyle.style.orderBoxContainer, { height: "100%", alignItems: "center", justifyContent: "center" }]}>
                         {orderList.length === 0 ? (
-                           <Text style={[baseStyle.headerTitleStyle]}>
+                           <Text style={[baseStyle.style.headerTitleStyle]}>
                               Nenhum pedido registrado.
                            </Text>
                         ) : (

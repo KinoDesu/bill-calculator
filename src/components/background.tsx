@@ -1,5 +1,4 @@
-import { useTheme } from "@/hooks/use-theme";
-import { BaseStyle } from "@/styles/baseStyle";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import Svg, { Path } from "react-native-svg";
 
 type BackgroundProps = {
@@ -8,19 +7,13 @@ type BackgroundProps = {
 
 export function Background({ type }: BackgroundProps) {
 
-    const theme = useTheme();
-
-    if (!theme.isReady) {
-        return null; // não renderiza nada até saber o tema de verdade
-    }
-
-    const baseStyle = BaseStyle(theme);
+    const baseStyle = useBaseStyle();
 
     return (
         <Svg
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
-            style={baseStyle.svg}
+            style={baseStyle.style.svg}
         >
             {type === "home" && <HomeBackground />}
             {type === "createTable" && <CreateTableBackground />}
@@ -48,7 +41,7 @@ export function Background({ type }: BackgroundProps) {
                     L 11.54,108.06
                     L -11.54,95.5
                 "
-                    fill={theme.secondaryBackground}
+                    fill={baseStyle.theme.secondaryBackground}
                 />
             </>
         );
@@ -72,7 +65,7 @@ export function Background({ type }: BackgroundProps) {
                     L -6.67,102.61
                     L -6.92,61.85
                 "
-                    fill={theme.secondaryBackground}
+                    fill={baseStyle.theme.secondaryBackground}
                 />
             </>
         );
@@ -97,7 +90,7 @@ export function Background({ type }: BackgroundProps) {
                     L -6.41,105.33
                     L -7.69,66.59
                 "
-                    fill={theme.secondaryBackground}
+                    fill={baseStyle.theme.secondaryBackground}
                 />
             </>
         );

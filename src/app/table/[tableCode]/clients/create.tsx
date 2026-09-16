@@ -1,11 +1,10 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
-import { useTheme } from "@/hooks/use-theme";
 import { ClientRegisterRequest } from "@/models/ClientRegisterRequest";
 import { ClientService } from "@/services/clientService";
 import { TableService } from "@/services/tableService";
-import { BaseStyle } from "@/styles/baseStyle";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Platform, ScrollView, Text, TextInput, View } from "react-native";
@@ -15,13 +14,7 @@ export default function registerClients() {
         tableCode: string;
     }>();
 
-    const theme = useTheme();
-
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+  const baseStyle = useBaseStyle();
 
     const { table, setTable } = useTable();
 
@@ -52,20 +45,20 @@ export default function registerClients() {
     const clientQuantity = useTable().table?.clientQuantity;
 
     return (
-        <View style={baseStyle.app}>
+        <View style={baseStyle.style.app}>
             <Background type="home" />
-            <View style={baseStyle.container}>
+            <View style={baseStyle.style.container}>
                 {
                     loading.status ? (
                         <View>
                             <ActivityIndicator
                                 size="large"
-                                color={theme.primary}
+                                color={baseStyle.theme.primary}
                             />
 
                             <Text
                                 style={[
-                                    baseStyle.textStyle,
+                                    baseStyle.style.textStyle,
                                     {
                                         marginTop: 16,
                                     },
@@ -81,21 +74,21 @@ export default function registerClients() {
                     width: "100%",
                     padding: 15, flex: 1, ...(Platform.OS === "web" && {
                         scrollbarWidth: "thin",
-                        scrollbarColor: `${theme.primary} transparent`,
+                        scrollbarColor: `${baseStyle.theme.primary} transparent`,
                     })
                 }} contentContainerStyle={{
                     alignItems: "center",
                     flexGrow: 1
                 }}>
-                    <View style={baseStyle.inputContainer}>
+                    <View style={baseStyle.style.inputContainer}>
 
                         {
                             Array.from({ length: Math.max((clientQuantity ?? 0) - 1, 0) }, (_, index) => (
                                 <TextInput
-                                    style={baseStyle.inputStyle}
+                                    style={baseStyle.style.inputStyle}
                                     key={index}
                                     placeholder={`Nome do cliente ${index + 2}`}
-                                    placeholderTextColor={theme.inputPlaceHolder}
+                                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                                     value={clientNames[index] ?? ""}
                                     onChangeText={(value) => {
                                         setClientNames((current) => {

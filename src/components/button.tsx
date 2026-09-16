@@ -1,5 +1,4 @@
-import { useTheme } from "@/hooks/use-theme";
-import { BaseStyle } from "@/styles/baseStyle";
+import { useBaseStyle } from "@/contexts/StyleContext";
 import { router, type Href } from "expo-router";
 import { Pressable, Text, type PressableProps } from "react-native";
 
@@ -22,24 +21,18 @@ export function ThemedButton({
     }
   };
 
-  const theme = useTheme();
-
-  if (!theme.isReady) {
-    return null; // não renderiza nada até saber o tema de verdade
-  }
-
-  const baseStyle = BaseStyle(theme);
+  const baseStyle = useBaseStyle();
 
   return (
     <Pressable
       {...rest}
       onPress={handlePress}
       style={({ pressed }) => [
-        baseStyle.buttonStyle,
-        pressed && baseStyle.buttonPressed,
+        baseStyle.style.buttonStyle,
+        pressed && baseStyle.style.buttonPressed,
       ]}
     >
-      <Text style={baseStyle.buttonText}>
+      <Text style={baseStyle.style.buttonText}>
         {title}
       </Text>
     </Pressable>
