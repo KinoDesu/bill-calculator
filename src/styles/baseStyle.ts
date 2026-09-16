@@ -278,7 +278,6 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     },
 
     orderName: {
-        width: "100%",
         color: theme.primary,
         fontSize: 24,
         fontWeight: "600",
@@ -463,16 +462,10 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     },
 
     loadingContainer: {
-        minWidth: 180,
-        padding: 25,
-
-        backgroundColor: theme.background,
-        borderRadius: 15,
-
+        flex: 1,
         alignItems: "center",
         justifyContent: "center",
-
-        gap: 15,
+        backgroundColor: theme.background
     },
 
     loadingText: {
@@ -480,6 +473,7 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
         fontSize: 18,
         fontWeight: "700",
         textAlign: "center",
+        marginTop: 16,
     },
 
     modalOverlay: {

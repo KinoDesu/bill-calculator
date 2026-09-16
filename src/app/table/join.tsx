@@ -10,10 +10,9 @@ import { useCallback, useState } from "react";
 import {
     ActivityIndicator,
     Modal,
-    StyleSheet,
     Text,
     TextInput,
-    View,
+    View
 } from "react-native";
 
 export default function JoinTable() {
@@ -21,7 +20,7 @@ export default function JoinTable() {
 
     const [tableCode, setTableCode] = useState("");
     const [loading, setLoading] = useState({
-        status: true,
+        status: false,
         message: "",
     });
     const [showResumeModal, setShowResumeModal] = useState(false);
@@ -99,7 +98,7 @@ export default function JoinTable() {
                 <View
                     style={[
                         baseStyle.style.app,
-                        styles.loadingContainer,
+                        baseStyle.style.loadingContainer,
                     ]}
                 >
                     <ActivityIndicator
@@ -107,14 +106,7 @@ export default function JoinTable() {
                         color={baseStyle.theme.primary}
                     />
 
-                    <Text
-                        style={[
-                            baseStyle.style.textStyle,
-                            {
-                                marginTop: 16,
-                            },
-                        ]}
-                    >
+                    <Text style={baseStyle.style.textStyle}>
                         {loading.message}
                     </Text>
                 </View>
@@ -251,30 +243,3 @@ export default function JoinTable() {
         </>
     );
 }
-
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-
-    bottomMenuContainerStyle: {
-        display: "flex",
-        flexDirection: "row",
-        width: "100%",
-        maxWidth: 400,
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 5,
-        marginTop: 10,
-    },
-
-    bottomMenuLeftContainerStyle: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        gap: 10,
-    },
-});

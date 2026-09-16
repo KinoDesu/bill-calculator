@@ -1,11 +1,11 @@
 import { Background } from "@/components/background";
 import { useBaseStyle } from "@/contexts/StyleContext";
+import { useTable } from "@/contexts/TableContext";
 import { QrCode } from "@/models/QrCode";
-import { Table } from "@/models/Table";
 import { TableService } from "@/services/tableService";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Text, View } from "react-native";
 
 export default function Invite() {
     const { tableCode } = useLocalSearchParams<{
@@ -14,29 +14,18 @@ export default function Invite() {
 
     const baseStyle = useBaseStyle();
 
-    const [table, setTable] = useState<Table | null>(null);
+    const { table, setTable } = useTable();
     const [qrCode, setQrcode] = useState<QrCode>();
 
     const [loading, setLoading] = useState({
-        status: true,
+        status: false,
         message: "",
     });
 
     useEffect(() => {
-        if (!tableCode) {
-            return;
-        }
-
         loadTable();
-    }, [tableCode]);
-
-    useEffect(() => {
-        if (!table) {
-            return;
-        }
-
         loadQrCode();
-    }, [table]);
+    }, [tableCode]);
 
     async function loadTable() {
         try {
@@ -80,7 +69,7 @@ export default function Invite() {
                 <View
                     style={[
                         baseStyle.style.app,
-                        styles.loadingContainer,
+                        baseStyle.style.loadingContainer,
                     ]}
                 >
                     <ActivityIndicator
@@ -88,14 +77,7 @@ export default function Invite() {
                         color={baseStyle.theme.primary}
                     />
 
-                    <Text
-                        style={[
-                            baseStyle.style.textStyle,
-                            {
-                                marginTop: 16,
-                            },
-                        ]}
-                    >
+                    <Text style={baseStyle.style.textStyle}>
                         {loading.message}
                     </Text>
                 </View>
@@ -132,16 +114,4 @@ export default function Invite() {
             )}
         </>
     );
-
-    function base64ToPng(base64: string) {
-        return `data:image/png;base64,${base64}`;
-    }
 };
-
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-});

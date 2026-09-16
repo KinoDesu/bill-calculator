@@ -14,20 +14,16 @@ export default function registerClients() {
         tableCode: string;
     }>();
 
-  const baseStyle = useBaseStyle();
+    const baseStyle = useBaseStyle();
 
     const { table, setTable } = useTable();
 
-    const [loading, setLoading] = useState({status: false, message: ""});
+    const [loading, setLoading] = useState({ status: false, message: "" });
 
     const [clientNames, setClientNames] = useState<string[]>([]);
 
     useEffect(() => {
-        if (table || !tableCode) {
-            return;
-        }
-
-        setLoading({status:true, message: "Recuperando mesa"});
+        setLoading({ status: true, message: "Recuperando mesa" });
 
         TableService.getTableDataByCode(tableCode)
             .then((table) => {
@@ -38,112 +34,137 @@ export default function registerClients() {
                 router.replace("/table/join");
             })
             .finally(() => {
-                setLoading({status:false, message: ""});
+                setLoading({ status: false, message: "" });
             });
-    }, [table, tableCode]);
+    }, [tableCode]);
 
     const clientQuantity = useTable().table?.clientQuantity;
 
     return (
-        <View style={baseStyle.style.app}>
-            <Background type="home" />
-            <View style={baseStyle.style.container}>
-                {
-                    loading.status ? (
-                        <View>
-                            <ActivityIndicator
-                                size="large"
-                                color={baseStyle.theme.primary}
-                            />
+        <>
 
-                            <Text
-                                style={[
-                                    baseStyle.style.textStyle,
-                                    {
-                                        marginTop: 16,
-                                    },
-                                ]}
-                            >
-                                {loading.message}
-                            </Text>
-                        </View>
-                    ) : null
-                }
+            {
+                loading.status ? (
+                    <View
+                        style={[
+                            baseStyle.style.app,
+                            baseStyle.style.loadingContainer,
+                        ]}
+                    >
+                        <ActivityIndicator
+                            size="large"
+                            color={baseStyle.theme.primary}
+                        />
 
-                <ScrollView style={{
-                    width: "100%",
-                    padding: 15, flex: 1, ...(Platform.OS === "web" && {
-                        scrollbarWidth: "thin",
-                        scrollbarColor: `${baseStyle.theme.primary} transparent`,
-                    })
-                }} contentContainerStyle={{
-                    alignItems: "center",
-                    flexGrow: 1
-                }}>
-                    <View style={baseStyle.style.inputContainer}>
-
-                        {
-                            Array.from({ length: Math.max((clientQuantity ?? 0) - 1, 0) }, (_, index) => (
-                                <TextInput
-                                    style={baseStyle.style.inputStyle}
-                                    key={index}
-                                    placeholder={`Nome do cliente ${index + 2}`}
-                                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                                    value={clientNames[index] ?? ""}
-                                    onChangeText={(value) => {
-                                        setClientNames((current) => {
-                                            const names = [...current];
-                                            names[index] = value;
-                                            return names;
-                                        });
-                                    }}
-                                />
-
-                            ))}
-
+                        <Text style={baseStyle.style.textStyle}>
+                            {loading.message}
+                        </Text>
                     </View>
-                </ScrollView>
-                <ThemedButton
-                    title="Criar mesa"
-                    onPress={() => {
-                        const hasEmptyName = clientNames.some(
-                            (name) => !name || name.trim() === ""
-                        );
+                ) : (
 
-                        if (hasEmptyName) {
-                            console.error("Todos os clientes precisam ter um nome");
-                            return;
-                        }
+                    <View style={baseStyle.style.app}>
+                        <Background type="home" />
+                        <View style={baseStyle.style.container}>
+                            {
+                                loading.status ? (
+                                    <View>
+                                        <ActivityIndicator
+                                            size="large"
+                                            color={baseStyle.theme.primary}
+                                        />
 
-                        setLoading({status:true, message: "Cadastrando clientes"});
-
-                        try {
-                            for (const name of clientNames) {
-                                const request: ClientRegisterRequest = {
-                                    name: name.trim(),
-                                    clientId: null,
-                                };
-
-                                ClientService.registerClient(request, table?.tableId!);
+                                        <Text
+                                            style={[
+                                                baseStyle.style.textStyle,
+                                                {
+                                                    marginTop: 16,
+                                                },
+                                            ]}
+                                        >
+                                            {loading.message}
+                                        </Text>
+                                    </View>
+                                ) : null
                             }
 
-                            console.log("Clientes registrados com sucesso");
-                        } catch (error) {
-                            console.error("Erro ao registrar cliente:", error);
-                        } finally {
-                            setLoading({status:false, message: ""});
-                        }
+                            <ScrollView style={{
+                                width: "100%",
+                                padding: 15, flex: 1, ...(Platform.OS === "web" && {
+                                    scrollbarWidth: "thin",
+                                    scrollbarColor: `${baseStyle.theme.primary} transparent`,
+                                })
+                            }} contentContainerStyle={{
+                                alignItems: "center",
+                                flexGrow: 1
+                            }}>
+                                <View style={baseStyle.style.inputContainer}>
 
-                        router.replace({
-                            pathname: "/table/[tableCode]",
-                            params: {
-                                tableCode
-                            },
-                        });
+                                    {
+                                        Array.from({ length: Math.max((clientQuantity ?? 0) - 1, 0) }, (_, index) => (
+                                            <TextInput
+                                                style={baseStyle.style.inputStyle}
+                                                key={index}
+                                                placeholder={`Nome do cliente ${index + 2}`}
+                                                placeholderTextColor={baseStyle.theme.inputPlaceHolder}
+                                                value={clientNames[index] ?? ""}
+                                                onChangeText={(value) => {
+                                                    setClientNames((current) => {
+                                                        const names = [...current];
+                                                        names[index] = value;
+                                                        return names;
+                                                    });
+                                                }}
+                                            />
 
-                    }}
-                />
-            </View>
-        </View>
+                                        ))}
+
+                                </View>
+                            </ScrollView>
+                            <ThemedButton
+                                title="Criar mesa"
+                                onPress={() => {
+                                    const hasEmptyName = clientNames.some(
+                                        (name) => !name || name.trim() === ""
+                                    );
+
+                                    if (hasEmptyName) {
+                                        console.error("Todos os clientes precisam ter um nome");
+                                        return;
+                                    }
+
+                                    setLoading({ status: true, message: "Cadastrando clientes" });
+
+                                    try {
+                                        for (const name of clientNames) {
+                                            const request: ClientRegisterRequest = {
+                                                name: name.trim(),
+                                                clientId: null,
+                                            };
+
+                                            ClientService.registerClient(request, table?.tableId!);
+                                        }
+
+                                        console.log("Clientes registrados com sucesso");
+                                    } catch (error) {
+                                        console.error("Erro ao registrar cliente:", error);
+                                    } finally {
+                                        setLoading({ status: false, message: "" });
+                                    }
+
+                                    router.replace({
+                                        pathname: "/table/[tableCode]",
+                                        params: {
+                                            tableCode
+                                        },
+                                    });
+
+                                }}
+                            />
+                        </View>
+                    </View>
+                )
+            }
+
+        </>
     );
 };

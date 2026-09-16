@@ -4,8 +4,8 @@ import { CustomNumberInput } from "@/components/customNumberInput";
 import { environment } from "@/config/environment";
 import { useSession } from "@/contexts/SessionContext";
 import { useBaseStyle } from "@/contexts/StyleContext";
+import { useTable } from "@/contexts/TableContext";
 import { ClientRegisterRequest } from "@/models/ClientRegisterRequest";
-import { Table } from "@/models/Table";
 import { TableRegisterRequest } from "@/models/TableRegisterRequest";
 import { ClientService } from "@/services/clientService";
 import { TableService } from "@/services/tableService";
@@ -21,8 +21,11 @@ export default function createTable() {
    const [clientQuantity, setClientQuantity] = useState(2);
    const [tableName, setTableName] = useState("");
    const [clientName, setClientName] = useState("");
-   const [table, setTable] = useState<Table | null>(null);
-   const [loading, setLoading] = useState(false);
+   const { table, setTable } = useTable();
+   const [loading, setLoading] = useState({
+      status: false,
+      message: "",
+   });
 
    async function handleCreateTable() {
       if (!clientName.trim()) {
@@ -36,7 +39,10 @@ export default function createTable() {
       }
 
       try {
-         setLoading(true);
+         setLoading({
+            status: true,
+            message: "Criando mesa"
+         });
 
          const tableRequest: TableRegisterRequest = {
             tableName: tableName.trim(),
@@ -74,66 +80,71 @@ export default function createTable() {
       } catch (error) {
          console.error("Falha ao criar mesa:", error);
       } finally {
-         setLoading(false);
+         setLoading({
+            status: false,
+            message: ""
+         });
       }
    }
 
    return (
-      <View style={baseStyle.style.app}>
-         <Background type="createTable" />
+      <>
+         {loading.status ? (
 
-         <View style={baseStyle.style.container}>
-            <View style={baseStyle.style.inputContainer}>
-               <TextInput
-                  style={baseStyle.style.inputStyle}
-                  placeholder="Seu nome"
-                  placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                  onChangeText={setClientName}
+            <View
+               style={[
+                  baseStyle.style.app,
+                  baseStyle.style.loadingContainer,
+               ]}
+            >
+               <ActivityIndicator
+                  size="large"
+                  color={baseStyle.theme.primary}
                />
 
-               <TextInput
-                  style={baseStyle.style.inputStyle}
-                  placeholder="Nome da mesa"
-                  placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                  onChangeText={setTableName}
-               />
+               <Text style={baseStyle.style.textStyle}>
+                  {loading.message}
+               </Text>
+            </View>
+         ) : (
+            <View style={baseStyle.style.app}>
+               <Background type="createTable" />
 
-               <CustomNumberInput
-                  label="Pessoas na mesa"
-                  value={clientQuantity}
-                  onChange={setClientQuantity}
-                  min={2}
-                  max={20}
-               />
-
-               {loading ? (
-                  <View>
-                     <ActivityIndicator
-                        size="large"
-                        color={baseStyle.theme.primary}
+               <View style={baseStyle.style.container}>
+                  <View style={baseStyle.style.inputContainer}>
+                     <TextInput
+                        style={baseStyle.style.inputStyle}
+                        placeholder="Seu nome"
+                        placeholderTextColor={baseStyle.theme.inputPlaceHolder}
+                        onChangeText={setClientName}
                      />
 
-                     <Text
-                        style={[
-                           baseStyle.style.textStyle,
-                           {
-                              marginTop: 16,
-                           },
-                        ]}
-                     >
-                        Criando mesa...
-                     </Text>
+                     <TextInput
+                        style={baseStyle.style.inputStyle}
+                        placeholder="Nome da mesa"
+                        placeholderTextColor={baseStyle.theme.inputPlaceHolder}
+                        onChangeText={setTableName}
+                     />
+
+                     <CustomNumberInput
+                        label="Pessoas na mesa"
+                        value={clientQuantity}
+                        onChange={setClientQuantity}
+                        min={2}
+                        max={20}
+                     />
+
+                     <View style={baseStyle.style.buttonContainer} />
                   </View>
-               ) : null}
 
-               <View style={baseStyle.style.buttonContainer} />
+                  <ThemedButton
+                     title="Registrar clientes"
+                     onPress={handleCreateTable}
+                  />
+               </View>
             </View>
+         )}
 
-            <ThemedButton
-               title="Registrar clientes"
-               onPress={handleCreateTable}
-            />
-         </View>
-      </View>
+      </>
    );
 }

@@ -2,16 +2,17 @@ import { Background } from "@/components/background";
 import { OrderItemBox } from "@/components/orderItemBox";
 import { SquareButton } from "@/components/squareButton";
 import { useBaseStyle } from "@/contexts/StyleContext";
+import { useTable } from "@/contexts/TableContext";
 import { Order } from "@/models/Order";
-import { Table } from "@/models/Table";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
 import {
    router,
    Stack,
+   useFocusEffect,
    useLocalSearchParams,
 } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
    ActivityIndicator,
    Platform,
@@ -28,21 +29,20 @@ export default function TableRoom() {
 
    const baseStyle = useBaseStyle();
 
-   const [table, setTable] = useState<Table | null>(null);
+   const { table, setTable } = useTable();
    const [orderList, setOrderList] = useState<Order[]>([]);
 
    const [loading, setLoading] = useState({
-      status: true,
+      status: false,
       message: "",
    });
 
-   useEffect(() => {
-      if (table || !tableCode) {
-         return;
-      }
+   useFocusEffect(
+      useCallback(() => {
+         loadTable();
 
-      loadTable();
-   }, [table, tableCode]);
+      }, [tableCode])
+   );
 
    async function loadTable() {
       try {
@@ -136,7 +136,7 @@ export default function TableRoom() {
             <View
                style={[
                   baseStyle.style.app,
-                  styles.loadingContainer,
+                  baseStyle.style.loadingContainer,
                ]}
             >
                <ActivityIndicator
@@ -144,14 +144,7 @@ export default function TableRoom() {
                   color={baseStyle.theme.primary}
                />
 
-               <Text
-                  style={[
-                     baseStyle.style.textStyle,
-                     {
-                        marginTop: 16,
-                     },
-                  ]}
-               >
+               <Text style={baseStyle.style.textStyle}>
                   {loading.message}
                </Text>
             </View>
@@ -230,11 +223,6 @@ export default function TableRoom() {
 }
 
 const styles = StyleSheet.create({
-   loadingContainer: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-   },
 
    bottomMenuContainerStyle: {
       display: "flex",

@@ -25,14 +25,15 @@ export function OrderItemBox({
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
-              width: "100%"
+              width: "100%",
+              justifyContent: "space-between"
             }]}>
               <Text style={baseStyle.style.orderName}
                 numberOfLines={1}
                 ellipsizeMode="tail">
                 {order.name}
               </Text>
-              <Text style={[baseStyle.style.orderName, { textAlign: "right" }]}>
+              <Text style={[baseStyle.style.orderName, {textAlign: "right" }]}>
                 {(order.unitPrice * order.quantity).toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -44,7 +45,7 @@ export function OrderItemBox({
               {order.quantity} x {order.unitPrice.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
-              })} | {order.clients.length}☺
+              })} | {order.clients.length} ☺ {" "}
               {((order.unitPrice * order.quantity) / order.clients.length).toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
@@ -54,7 +55,7 @@ export function OrderItemBox({
           </View>
           <View style={{ width: 30 }}>
             {!expanded ? (
-              <Text style={[[baseStyle.style.textStyle, { textAlign: "center", userSelect:"none" }]]}>+</Text>
+              <Text style={[[baseStyle.style.textStyle, { textAlign: "center", userSelect: "none" }]]}>+</Text>
 
             ) : (<Text style={[[baseStyle.style.textStyle, { textAlign: "center" }]]}>-</Text>)
             }

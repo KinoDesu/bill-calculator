@@ -8,7 +8,7 @@ import { ClientService } from "@/services/clientService";
 import { TableService } from "@/services/tableService";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Text, View } from "react-native";
 
 export default function joinClient() {
 
@@ -23,18 +23,15 @@ export default function joinClient() {
     const [selectedClient, setSelectedCLient] = useState("");
 
     const [loading, setLoading] = useState({
-        status: true,
+        status: false,
         message: "",
     });
 
     const { saveSession } = useSession();
 
     useEffect(() => {
-
-        if (!table && tableCode) {
-            loadTable();
-        }
-    });
+        loadTable();
+    }, [tableCode]);
 
     async function loadTable() {
         try {
@@ -73,7 +70,7 @@ export default function joinClient() {
                     <View
                         style={[
                             baseStyle.style.app,
-                            styles.loadingContainer,
+                            baseStyle.style.loadingContainer,
                         ]}
                     >
                         <ActivityIndicator
@@ -81,14 +78,7 @@ export default function joinClient() {
                             color={baseStyle.theme.primary}
                         />
 
-                        <Text
-                            style={[
-                                baseStyle.style.textStyle,
-                                {
-                                    marginTop: 16,
-                                },
-                            ]}
-                        >
+                        <Text style={baseStyle.style.textStyle}>
                             {loading.message}
                         </Text>
                     </View>
@@ -161,31 +151,4 @@ export default function joinClient() {
             },
         });
     }
-};
-
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-
-    bottomMenuContainerStyle: {
-        display: "flex",
-        flexDirection: "row",
-        width: "100%",
-        maxWidth: 400,
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 5,
-        marginTop: 10,
-    },
-
-    bottomMenuLeftContainerStyle: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        gap: 10,
-    },
-});
+}

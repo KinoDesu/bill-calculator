@@ -3,10 +3,10 @@ import { ThemedButton } from "@/components/button";
 import ClientSelect from "@/components/ClientSelect";
 import { CustomNumberInput } from "@/components/customNumberInput";
 import { useBaseStyle } from "@/contexts/StyleContext";
+import { useTable } from "@/contexts/TableContext";
 import { Client } from "@/models/Client";
 import { Order } from "@/models/Order";
 import { OrderRegisterRequest } from "@/models/OrderRegisterRequest";
-import { Table } from "@/models/Table";
 import { ClientService } from "@/services/clientService";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
@@ -41,35 +41,29 @@ export default function CreateOrder() {
     const [selectedClientIdList, setSelectedClientIdList] = useState<string[]>([]);
 
     const [clients, setClients] = useState<Client[]>([]);
-    const [table, setTable] = useState<Table | null>(null);
+    const { table, setTable } = useTable();
 
     const [loading, setLoading] = useState({
-        status: true,
+        status: false,
         message: "",
     });
 
     const [successOrder, setSuccessOrder] = useState<Order | null>(null);
 
     useEffect(() => {
-        if (table || !tableCode) {
-            return;
-        }
-
         loadTable();
-    }, [table, tableCode]);
+    }, [tableCode]);
 
     async function loadTable() {
         try {
             setLoading({
                 status: true,
-                message: "Entrando na mesa",
+                message: "Carregando mesa",
             });
 
             const table = await TableService.getTableDataByCode(tableCode);
-
             setTable(table);
 
-            await loadClients(table.tableId ?? "");
         } catch (error) {
             console.error("Falha ao recuperar dados da mesa:", error);
 
@@ -80,15 +74,25 @@ export default function CreateOrder() {
                 message: "",
             });
         }
+        await loadClients(table?.tableId ?? "");
     }
 
     async function loadClients(tableId: string) {
         try {
+            setLoading({
+                status: true,
+                message: "Carregando clientes",
+            });
             const clients = await ClientService.getTableClients(tableId);
             setClients(clients);
         } catch (error) {
             console.error("Erro ao buscar clientes:", error);
-            setClients([]);
+            router.back();
+        } finally {
+            setLoading({
+                status: false,
+                message: "",
+            });
         }
     }
 
@@ -156,212 +160,213 @@ export default function CreateOrder() {
     }
 
     return (
-        <View style={baseStyle.style.app}>
-            <Background type="home" />
-
-            <View style={baseStyle.style.container}>
-                <View style={baseStyle.style.inputContainer}>
-                    <TextInput
-                        style={baseStyle.style.inputStyle}
-                        placeholder="Item"
-                        placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                        onChangeText={setItemName}
-                    />
-
-                    <View style={[{
-                        width: "100%",
-                        display: "flex",
-                        flexDirection: "row",
-                        maxWidth: 350,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: 5,
-                    }]}>
-                        <Text style={[baseStyle.style.buttonText]}>
-                            R$
-                        </Text>
-                        <TextInput
-                            style={[baseStyle.style.inputStyle, { maxWidth: 200 }]}
-                            placeholder="Valor"
-                            placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                            keyboardType="numeric"
-                            value={itemPriceText}
-                            onChangeText={handleItemPriceChange}
-                        />
-                    </View>
-
-                    <CustomNumberInput
-                        label="Quantidade"
-                        min={1}
-                        max={100}
-                        value={itemQuantity}
-                        onChange={setItemQuantity}
-                    />
-
-                    <ClientSelect
-                        clients={clients}
-                        selectedClientIds={selectedClientIdList}
-                        value={selectedClientId}
-                        onChange={(clientId) => {
-                            setSelectedClientIdList((current) => [
-                                ...current,
-                                clientId,
-                            ]);
-
-                            setSelectedClientId("");
-                        }}
-                    />
-                </View>
-
-                {selectedClientIdList.length > 0 && (
-                    <ScrollView
+        <>
+            {
+                loading.status ? (
+                    <View
                         style={[
-                            baseStyle.style.selectedClientsScroll,
-                            {
-                                maxHeight: screenHeight * 0.30,
-                                ...(Platform.OS === "web" && {
-                                    scrollbarWidth: "thin",
-                                    scrollbarColor: `${baseStyle.theme.primary} transparent`,
-                                }),
-                            },
+                            baseStyle.style.app,
+                            baseStyle.style.loadingContainer,
                         ]}
-                        contentContainerStyle={{
-                            alignItems: "flex-start",
-                            flexGrow: 1,
-                        }}
                     >
-                        <View
-                            style={[
-                                baseStyle.style.selectedClientsContainer,
-                                {
-                                    height: "100%",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                },
-                            ]}
-                        >
-                            {selectedClientIdList.map((clientId) => {
-                                const client = clients.find(
-                                    (client) => client.clientId === clientId
-                                );
-
-                                if (!client) {
-                                    return null;
-                                }
-
-                                return (
-                                    <View
-                                        key={clientId}
-                                        style={baseStyle.style.selectedClientContainer}
-                                    >
-                                        <Text
-                                            style={baseStyle.style.selectedClientName}
-                                        >
-                                            {client.name}
-                                        </Text>
-
-                                        <Pressable
-                                            onPress={() => {
-                                                setSelectedClientIdList(
-                                                    (current) =>
-                                                        current.filter(
-                                                            (id) =>
-                                                                id !== clientId
-                                                        )
-                                                );
-                                            }}
-                                            style={({ pressed }) => [
-                                                baseStyle.style.removeClientButton,
-                                                {
-                                                    opacity: pressed ? 0.6 : 1,
-                                                },
-                                            ]}
-                                        >
-                                            <Text
-                                                style={
-                                                    baseStyle.style.removeClientButtonText
-                                                }
-                                            >
-                                                ×
-                                            </Text>
-                                        </Pressable>
-                                    </View>
-                                );
-                            })}
-                        </View>
-                    </ScrollView>
-                )}
-
-                <ThemedButton
-                    title="Fazer pedido"
-                    onPress={handleRegisterOrder}
-                />
-            </View>
-
-            {/* Loading */}
-            {loading.status && (
-                <View style={baseStyle.style.loadingOverlay}>
-                    <View style={baseStyle.style.loadingContainer}>
                         <ActivityIndicator
                             size="large"
                             color={baseStyle.theme.primary}
                         />
-                        {Boolean(loading.message) && (
-                            <Text style={baseStyle.style.loadingText}>
-                                {loading.message}
-                            </Text>
-                        )}
-                    </View>
-                </View>
-            )}
 
-            {/* Pedido gravado */}
-            {successOrder && (
-                <View style={baseStyle.style.modalOverlay}>
-                    <View style={baseStyle.style.modalContainer}>
-                        <Text style={baseStyle.style.modalTitle}>
-                            Pedido feito!
+                        <Text style={baseStyle.style.textStyle}>
+                            {loading.message}
                         </Text>
+                    </View>
+                ) : (
 
-                        <View style={baseStyle.style.modalContent}>
-                            <Text style={baseStyle.style.modalItemName}>
-                                {successOrder.name}
-                            </Text>
+                    <View style={baseStyle.style.app}>
+                        <Background type="home" />
 
-                            <Text style={baseStyle.style.modalInfo}>
-                                Valor unitário:{" "}
-                                {formatCurrency(successOrder.unitPrice)}
-                            </Text>
+                        <View style={baseStyle.style.container}>
+                            <View style={baseStyle.style.inputContainer}>
+                                <TextInput
+                                    style={baseStyle.style.inputStyle}
+                                    placeholder="Item"
+                                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
+                                    onChangeText={setItemName}
+                                />
 
-                            <Text style={baseStyle.style.modalInfo}>
-                                Quantidade: {successOrder.quantity}
-                            </Text>
+                                <View style={[{
+                                    width: "100%",
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    maxWidth: 350,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: 5,
+                                }]}>
+                                    <Text style={[baseStyle.style.buttonText]}>
+                                        R$
+                                    </Text>
+                                    <TextInput
+                                        style={[baseStyle.style.inputStyle, { maxWidth: 200 }]}
+                                        placeholder="Valor"
+                                        placeholderTextColor={baseStyle.theme.inputPlaceHolder}
+                                        keyboardType="numeric"
+                                        value={itemPriceText}
+                                        onChangeText={handleItemPriceChange}
+                                    />
+                                </View>
 
-                            <Text style={baseStyle.style.modalInfo}>
-                                Total:{" "}
-                                {formatCurrency(
-                                    successOrder.unitPrice *
-                                    successOrder.quantity
-                                )}
-                            </Text>
+                                <CustomNumberInput
+                                    label="Quantidade"
+                                    min={1}
+                                    max={100}
+                                    value={itemQuantity}
+                                    onChange={setItemQuantity}
+                                />
+
+                                <ClientSelect
+                                    clients={clients}
+                                    selectedClientIds={selectedClientIdList}
+                                    value={selectedClientId}
+                                    onChange={(clientId) => {
+                                        setSelectedClientIdList((current) => [
+                                            ...current,
+                                            clientId,
+                                        ]);
+
+                                        setSelectedClientId("");
+                                    }}
+                                />
+                            </View>
+
+                            {selectedClientIdList.length > 0 && (
+                                <ScrollView
+                                    style={[
+                                        baseStyle.style.selectedClientsScroll,
+                                        {
+                                            maxHeight: screenHeight * 0.30,
+                                            ...(Platform.OS === "web" && {
+                                                scrollbarWidth: "thin",
+                                                scrollbarColor: `${baseStyle.theme.primary} transparent`,
+                                            }),
+                                        },
+                                    ]}
+                                    contentContainerStyle={{
+                                        alignItems: "flex-start",
+                                        flexGrow: 1,
+                                    }}
+                                >
+                                    <View
+                                        style={[
+                                            baseStyle.style.selectedClientsContainer,
+                                            {
+                                                height: "100%",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                            },
+                                        ]}
+                                    >
+                                        {selectedClientIdList.map((clientId) => {
+                                            const client = clients.find(
+                                                (client) => client.clientId === clientId
+                                            );
+
+                                            if (!client) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <View
+                                                    key={clientId}
+                                                    style={baseStyle.style.selectedClientContainer}
+                                                >
+                                                    <Text
+                                                        style={baseStyle.style.selectedClientName}
+                                                    >
+                                                        {client.name}
+                                                    </Text>
+
+                                                    <Pressable
+                                                        onPress={() => {
+                                                            setSelectedClientIdList(
+                                                                (current) =>
+                                                                    current.filter(
+                                                                        (id) =>
+                                                                            id !== clientId
+                                                                    )
+                                                            );
+                                                        }}
+                                                        style={({ pressed }) => [
+                                                            baseStyle.style.removeClientButton,
+                                                            {
+                                                                opacity: pressed ? 0.6 : 1,
+                                                            },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                baseStyle.style.removeClientButtonText
+                                                            }
+                                                        >
+                                                            ×
+                                                        </Text>
+                                                    </Pressable>
+                                                </View>
+                                            );
+                                        })}
+                                    </View>
+                                </ScrollView>
+                            )}
+
+                            <ThemedButton
+                                title="Fazer pedido"
+                                onPress={handleRegisterOrder}
+                            />
                         </View>
 
-                        <ThemedButton
-                            title="Confirmar"
-                            onPress={() => {
-                                setSuccessOrder(null);
+                        {/* Pedido gravado */}
+                        {successOrder && (
+                            <View style={baseStyle.style.modalOverlay}>
+                                <View style={baseStyle.style.modalContainer}>
+                                    <Text style={baseStyle.style.modalTitle}>
+                                        Pedido feito!
+                                    </Text>
 
-                                router.replace({
-                                    pathname: "/table/[tableCode]",
-                                    params: {
-                                        tableCode,
-                                    },
-                                });
-                            }}
-                        />
-                    </View>
-                </View>
-            )}
-        </View>
+                                    <View style={baseStyle.style.modalContent}>
+                                        <Text style={baseStyle.style.modalItemName}>
+                                            {successOrder.name}
+                                        </Text>
+
+                                        <Text style={baseStyle.style.modalInfo}>
+                                            Valor unitário:{" "}
+                                            {formatCurrency(successOrder.unitPrice)}
+                                        </Text>
+
+                                        <Text style={baseStyle.style.modalInfo}>
+                                            Quantidade: {successOrder.quantity}
+                                        </Text>
+
+                                        <Text style={baseStyle.style.modalInfo}>
+                                            Total:{" "}
+                                            {formatCurrency(
+                                                successOrder.unitPrice *
+                                                successOrder.quantity
+                                            )}
+                                        </Text>
+                                    </View>
+
+                                    <ThemedButton
+                                        title="Confirmar"
+                                        onPress={() => {
+                                            setSuccessOrder(null);
+
+                                            router.back();
+                                        }}
+                                    />
+                                </View>
+                            </View>
+                        )}
+                    </View >
+                )
+            }
+        </>
     );
 }
