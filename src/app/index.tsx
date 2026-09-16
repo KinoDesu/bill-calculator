@@ -12,15 +12,15 @@ export default function Index() {
     <View style={baseStyle.app}>
       <Background type="home" />
       <View style={baseStyle.container}>
-        <Text style={baseStyle.titleStyle}>Calcula Conta</Text>
+        <Text style={baseStyle.appTitleStyle}>Calcula Conta</Text>
         <View style={baseStyle.buttonContainer}>
           <ThemedButton
             title="Criar uma mesa"
-            onPress={() => console.log('Criar mesa')}
-          />
+            href="/table/create"
+            />
           <ThemedButton
             title="Entrar em uma mesa"
-            onPress={() => console.log('Entrar em mesa')}
+            href="/table/join"
           />
         </View>
       </View>

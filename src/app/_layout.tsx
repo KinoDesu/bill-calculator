@@ -1,18 +1,40 @@
+import { SessionProvider } from "@/contexts/SessionContext";
+import { TableProvider } from "@/contexts/TableContext";
 import { useTheme } from "@/hooks/use-theme";
+import { BaseStyle } from "@/styles/baseStyle";
 import { Stack } from "expo-router";
-import { useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 
 export default function RootLayout() {
 
   const colorScheme = useColorScheme();
   const theme = useTheme();
-  console.log(colorScheme);
-  console.log(theme);
-  
+  const baseStyle = BaseStyle(theme);
+
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ title: "Home", headerShown: false }} />
-      <Stack.Screen name="about" options={{ title: "About" }} />
-    </Stack>
+    <SessionProvider>
+      <TableProvider>
+        <Stack screenOptions={{
+          headerShown: true,
+          headerStyle: baseStyle.headerStyle,
+          headerTintColor: baseStyle.headerTintColor.tintColor,
+          headerTitleStyle: baseStyle.headerTitleStyle,
+          headerTitleAlign: baseStyle.headerTitleAlign.textAlign,
+          headerLeft:
+            Platform.OS === "web"
+              ? () => null
+              : undefined,
+        }}>
+          <Stack.Screen name="index" options={{ title: "Home", headerShown: false }} />
+          <Stack.Screen name="table/create" options={{ title: "Criar uma mesa" }} />
+          <Stack.Screen name="table/join" options={{ title: "Sentar-se à mesa" }} />
+          <Stack.Screen name="table/[tableCode]/index" options={{ title: "" }} />
+          <Stack.Screen name="table/[tableCode]/clients/join" options={{ title: "Se apresente" }} />
+          <Stack.Screen name="table/[tableCode]/clients/create" options={{ title: "Registrar clientes" }} />
+          <Stack.Screen name="table/[tableCode]/order/create" options={{ title: "Fazer pedido" }} />
+          <Stack.Screen name="table/[tableCode]/invite" options={{ title: "Convide seus amigos" }} />
+        </Stack>
+      </TableProvider>
+    </SessionProvider>
   );
 }

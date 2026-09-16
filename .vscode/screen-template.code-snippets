@@ -1,0 +1,44 @@
+{
+	// Place your bill-calculator workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	"screen": {
+		"scope": "javascript,typescript, typescriptreact, javascriptreact",
+		"prefix": "ts",
+		"body": [
+			"import { Background } from \"@/components/background\";",
+			"import { useTheme } from \"@/hooks/use-theme\"",
+			"import { BaseStyle } from \"@/styles/baseStyle\";",
+			"import { Text, View } from \"react-native\";",
+			"",
+			"export default function $1() {",
+			"    const theme = useTheme();",
+			"    const baseStyle = BaseStyle(theme);",
+			"",
+			"    return (",
+			"       <View style={baseStyle.app}>",
+			"          <Background type=\"$2\" />",
+			"          <View style={baseStyle.container}>",
+			"             <Text style={baseStyle.textStyle}>$3 screen.</Text>",
+			"          </View>",
+			"       </View>",
+			"  );",
+			"};"
+		],
+		"description": "Create screen template"
+	}
+	//
+	// You can also restrict snippets to specific files using include/exclude patterns:
+	// "Test snippet": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "test",
+	// 	"body": "test('$1', () => {\n\t$0\n});",
+	// 	"include": ["**/*.test.ts", "*.spec.ts"],
+	// 	"exclude": ["**/temp/*.ts"],
+	// 	"description": "Insert test block"
+	// }
+}
