@@ -27,6 +27,11 @@ export default function ClientSelect({
     const [clientName, setClientName] = useState("");
 
     const theme = useTheme();
+
+    if (!theme.isReady) {
+        return null; // não renderiza nada até saber o tema de verdade
+    }
+
     const baseStyle = BaseStyle(theme);
 
     useEffect(() => {

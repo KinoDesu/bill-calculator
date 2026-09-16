@@ -15,6 +15,11 @@ export function OrderItemBox({
   onPress,
 }: OrderItemBoxProps) {
   const theme = useTheme();
+
+  if (!theme.isReady) {
+    return null; // não renderiza nada até saber o tema de verdade
+  }
+
   const baseStyle = BaseStyle(theme);
 
   return (

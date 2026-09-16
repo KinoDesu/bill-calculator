@@ -3,12 +3,16 @@ import { TableProvider } from "@/contexts/TableContext";
 import { useTheme } from "@/hooks/use-theme";
 import { BaseStyle } from "@/styles/baseStyle";
 import { Stack } from "expo-router";
-import { Platform, useColorScheme } from "react-native";
+import { Platform } from "react-native";
 
 export default function RootLayout() {
 
-  const colorScheme = useColorScheme();
   const theme = useTheme();
+
+  if (!theme.isReady) {
+    return null; // não renderiza nada até saber o tema de verdade
+  }
+
   const baseStyle = BaseStyle(theme);
 
   return (

@@ -501,13 +501,13 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
         width: "100%",
         maxWidth: 350,
 
-        backgroundColor: theme.background,
+        backgroundColor: theme.secondaryBackground,
 
-        borderWidth: 1,
+        borderWidth: 2,
         borderColor: theme.inputBorder,
-        borderRadius: 15,
+        borderRadius: 10,
 
-        padding: 20,
+        padding: 15,
 
         alignItems: "center",
         justifyContent: "center",
@@ -525,7 +525,7 @@ export const BaseStyle = (theme: ReturnType<typeof useTheme>) => StyleSheet.crea
     modalContent: {
         width: "100%",
 
-        backgroundColor: theme.secondaryBackground,
+        backgroundColor: theme.button,
 
         borderWidth: 1,
         borderColor: theme.inputBorder,

@@ -32,6 +32,11 @@ export default function CreateOrder() {
     const { height: screenHeight } = useWindowDimensions();
 
     const theme = useTheme();
+
+    if (!theme.isReady) {
+        return null; // não renderiza nada até saber o tema de verdade
+    }
+
     const baseStyle = BaseStyle(theme);
 
     const [itemName, setItemName] = useState("");
@@ -170,14 +175,27 @@ export default function CreateOrder() {
                         onChangeText={setItemName}
                     />
 
-                    <TextInput
-                        style={baseStyle.inputStyle}
-                        placeholder="Valor"
-                        placeholderTextColor={theme.inputPlaceHolder}
-                        keyboardType="numeric"
-                        value={itemPriceText}
-                        onChangeText={handleItemPriceChange}
-                    />
+                    <View style={[{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "row",
+                        maxWidth: 350,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: 5,
+                    }]}>
+                        <Text style={[baseStyle.buttonText]}>
+                            R$
+                        </Text>
+                        <TextInput
+                            style={[baseStyle.inputStyle, { width: 200 }]}
+                            placeholder="Valor"
+                            placeholderTextColor={theme.inputPlaceHolder}
+                            keyboardType="numeric"
+                            value={itemPriceText}
+                            onChangeText={handleItemPriceChange}
+                        />
+                    </View>
 
                     <CustomNumberInput
                         label="Quantidade"

@@ -16,7 +16,12 @@ import { ActivityIndicator, Text, TextInput, View } from "react-native";
 
 export default function createTable() {
    const theme = useTheme();
-   const baseStyle = BaseStyle(theme);
+
+  if (!theme.isReady) {
+    return null; // não renderiza nada até saber o tema de verdade
+  }
+
+  const baseStyle = BaseStyle(theme);
 
    const { saveSession } = useSession();
 

@@ -28,7 +28,12 @@ export default function TableRoom() {
    }>();
 
    const theme = useTheme();
-   const baseStyle = BaseStyle(theme);
+
+  if (!theme.isReady) {
+    return null; // não renderiza nada até saber o tema de verdade
+  }
+
+  const baseStyle = BaseStyle(theme);
 
    const [table, setTable] = useState<Table | null>(null);
    const [orderList, setOrderList] = useState<Order[]>([]);

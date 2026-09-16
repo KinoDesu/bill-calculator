@@ -8,15 +8,6 @@ import '@/global.css';
 import { Platform } from 'react-native';
 
 export const Colors = {
-  light: {
-    background: '#000000',
-    secondaryBackground: '#18122b',
-    title: '#635985',
-    primary: '#FFFFFF',
-    button: '#443C68',
-    inputBorder: '#FFFFFF',
-    inputPlaceHolder: '#18122B',
-  },
   dark: {
     background: '#000000',
     secondaryBackground: '#18122b',
@@ -25,6 +16,15 @@ export const Colors = {
     button: '#443C68',
     inputBorder: '#FFFFFF',
     inputPlaceHolder: '#18122B',
+  },
+  light: {
+    background: '#ffffff',
+    secondaryBackground: '#2C5EAD',
+    title: '#1591DC',
+    primary: '#151515',
+    button: '#4BB8FA',
+    inputBorder: '#000000',
+    inputPlaceHolder: '#2C5EAD',
   },
 } as const;
 

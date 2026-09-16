@@ -19,8 +19,12 @@ export function CustomNumberInput({
   max = 99,
 }: NumberInputProps) {
   const theme = useTheme();
-  const baseStyle = BaseStyle(theme);
 
+  if (!theme.isReady) {
+    return null; // não renderiza nada até saber o tema de verdade
+  }
+
+  const baseStyle = BaseStyle(theme);
   function decrease() {
     if (value > min) {
       onChange(value - 1);

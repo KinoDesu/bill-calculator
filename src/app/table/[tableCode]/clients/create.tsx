@@ -16,7 +16,12 @@ export default function registerClients() {
     }>();
 
     const theme = useTheme();
-    const baseStyle = BaseStyle(theme);
+
+  if (!theme.isReady) {
+    return null; // não renderiza nada até saber o tema de verdade
+  }
+
+  const baseStyle = BaseStyle(theme);
 
     const { table, setTable } = useTable();
 

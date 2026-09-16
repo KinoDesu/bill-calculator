@@ -17,7 +17,12 @@ export default function profile() {
    }>();
 
    const theme = useTheme();
-   const baseStyle = BaseStyle(theme);
+
+  if (!theme.isReady) {
+    return null; // não renderiza nada até saber o tema de verdade
+  }
+
+  const baseStyle = BaseStyle(theme);
 
    const [clientName, setClientName] = useState("");
    const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
