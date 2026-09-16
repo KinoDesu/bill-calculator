@@ -26,6 +26,7 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
         justifyContent: "space-between",
         paddingVertical: 5,
         marginVertical: 25,
+        gap:15,
     },
     appTitleStyle: {
         color: theme.title,
@@ -68,7 +69,7 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     buttonStyle: {
         width: "100%",
         maxWidth: 350,
-        height: 50,
+        minHeight: 50,
         backgroundColor: theme.button,
         borderRadius: 10,
         justifyContent: "center", // Centraliza o texto verticalmente
@@ -261,6 +262,7 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "flex-start",
         gap: 5,
+        textAlign:"center"
     },
 
     orderDetails: {
@@ -286,6 +288,7 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
         color: theme.primary,
         fontSize: 12,
         fontWeight: 600,
+        textAlign:"center"
     },
 
     OrderClientContainer: {

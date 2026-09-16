@@ -201,7 +201,7 @@ export default function TableRoom() {
                         <SquareButton
                            title="P"
                            onPress={() => {
-                              router.replace({
+                              router.push({
                                  pathname: "/table/[tableCode]/order/create",
                                  params: {
                                     tableCode,

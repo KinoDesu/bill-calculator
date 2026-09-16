@@ -21,24 +21,44 @@ export function OrderItemBox({
       <Pressable onPress={onPress}>
         <View style={baseStyle.style.orderBoxHeader}>
           <View style={baseStyle.style.orderInfo}>
-            <Text style={baseStyle.style.orderName}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              {order.name}
-            </Text>
+            <View style={[{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              width: "100%"
+            }]}>
+              <Text style={baseStyle.style.orderName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {order.name}
+              </Text>
+              <Text style={[baseStyle.style.orderName, { textAlign: "right" }]}>
+                {(order.unitPrice * order.quantity).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </Text>
+            </View>
 
             <Text style={baseStyle.style.orderPrice}>
               {order.quantity} x {order.unitPrice.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
+              })} | {order.clients.length}☺
+              {((order.unitPrice * order.quantity) / order.clients.length).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
               })}
             </Text>
-          </View>
-          {!expanded ? (
-            <Text style={baseStyle.style.textStyle}>+</Text>
 
-          ) : (<Text style={baseStyle.style.textStyle}>-</Text>)
-          }
+          </View>
+          <View style={{ width: 30 }}>
+            {!expanded ? (
+              <Text style={[[baseStyle.style.textStyle, { textAlign: "center", userSelect:"none" }]]}>+</Text>
+
+            ) : (<Text style={[[baseStyle.style.textStyle, { textAlign: "center" }]]}>-</Text>)
+            }
+          </View>
         </View>
       </Pressable>
 

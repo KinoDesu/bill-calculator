@@ -181,7 +181,7 @@ export default function CreateOrder() {
                             R$
                         </Text>
                         <TextInput
-                            style={[baseStyle.style.inputStyle, { width: 200 }]}
+                            style={[baseStyle.style.inputStyle, { maxWidth: 200 }]}
                             placeholder="Valor"
                             placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                             keyboardType="numeric"
@@ -320,7 +320,7 @@ export default function CreateOrder() {
                 <View style={baseStyle.style.modalOverlay}>
                     <View style={baseStyle.style.modalContainer}>
                         <Text style={baseStyle.style.modalTitle}>
-                            Pedido gravado!
+                            Pedido feito!
                         </Text>
 
                         <View style={baseStyle.style.modalContent}>
@@ -351,9 +351,12 @@ export default function CreateOrder() {
                             onPress={() => {
                                 setSuccessOrder(null);
 
-                                router.replace(
-                                    `/table/${tableCode}`
-                                );
+                                router.replace({
+                                    pathname: "/table/[tableCode]",
+                                    params: {
+                                        tableCode,
+                                    },
+                                });
                             }}
                         />
                     </View>

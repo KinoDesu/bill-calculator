@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 
 type TableContextData = {
    table: Table | null;
-   setTable: (table: Table) => void;
+   setTable: (table: Table | null) => void;
    orderClientList: OrderClient[];
    setOrderClientList: (clientList: OrderClient[]) => void;
 };

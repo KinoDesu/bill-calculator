@@ -1,17 +1,16 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
 import { QRCodeScanner } from "@/components/QRCodeScanner";
-import { useSession } from "@/contexts/SessionContext";
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
-import { Table } from "@/models/Table";
-import { api } from "@/services/api";
+import { TableService } from "@/services/tableService";
 import { TableSessionService } from "@/services/tableSessionService";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
     ActivityIndicator,
     Modal,
+    StyleSheet,
     Text,
     TextInput,
     View,
@@ -21,238 +20,261 @@ export default function JoinTable() {
     const baseStyle = useBaseStyle();
 
     const [tableCode, setTableCode] = useState("");
-    const [loading, setLoading] = useState(false);
-
-    const [savedTable, setSavedTable] = useState<Table | null>(null);
+    const [loading, setLoading] = useState({
+        status: true,
+        message: "",
+    });
     const [showResumeModal, setShowResumeModal] = useState(false);
-    const [checkingSession, setCheckingSession] = useState(true);
+    const { table, setTable } = useTable();
 
-    const { setTable } = useTable();
-    const { saveSession } = useSession();
+    useFocusEffect(
+        useCallback(() => {
+            checkSavedSession();
 
-    useEffect(() => {
-        checkSavedSession();
-    }, []);
+        }, [])
+    );
 
     async function checkSavedSession() {
         try {
+            setLoading({ status: true, message: "Carregando mesa" })
+
             const session = await TableSessionService.get();
 
             if (!session) {
                 return;
             }
 
-            const table = await getTableData(session.tableCode);
-
-            setSavedTable(table);
+            const table = await TableService.getTableDataByCode(session.tableCode);
+            setTable(table);
             setShowResumeModal(true);
         } catch (error) {
+
             console.error("Erro ao recuperar sessão:", error);
 
             await TableSessionService.clear();
         } finally {
-            setCheckingSession(false);
+            setLoading({ status: false, message: "" })
         }
     }
 
-    async function goToTable(tableCode: string) {
+    function goToTable(tableCode: string) {
         if (!tableCode) {
             console.error("Código da mesa não encontrado");
             return;
         }
 
-        setLoading(true);
-
-        getTableData(tableCode)
-            .then(async (table) => {
-                setTable(table);
-
-                await saveSession({
-                    tableId: table.tableId!,
-                    tableCode: tableCode,
-                });
-
-                router.replace({
-                    pathname: "/table/[tableCode]",
-                    params: {
-                        tableCode,
-                    },
-                });
-            })
-            .catch((error) => {
-                console.error("Erro ao buscar mesa:", error);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        router.push({
+            pathname: "/table/[tableCode]/clients/join",
+            params: {
+                tableCode: tableCode,
+            },
+        });
     }
 
     function resumeTable() {
-        if (!savedTable) {
+        if (!table) {
             return;
         }
 
         setShowResumeModal(false);
 
-        setTable(savedTable);
-
-        router.replace({
+        router.push({
             pathname: "/table/[tableCode]",
             params: {
-                tableCode: savedTable.code ?? "",
+                tableCode: table.code ?? "",
             },
         });
     }
 
     async function rejectSavedTable() {
         await TableSessionService.clear();
-
-        setSavedTable(null);
+        setTable(null);
         setShowResumeModal(false);
     }
 
     return (
-        <View style={baseStyle.style.app}>
-            <Background type="joinTable" />
+        <>
+            {loading.status ? (
 
-            <View style={baseStyle.style.container}>
-                <View style={baseStyle.style.inputContainer}>
-                    <QRCodeScanner
-                        onRead={(data) => {
-                            try {
-                                const url = new URL(data);
-                                const code = url.pathname.split("/").pop();
-
-                                if (code) {
-                                    setTableCode(code);
-                                    goToTable(code);
-                                }
-                            } catch (error) {
-                                console.error(
-                                    "Erro ao buscar mesa:",
-                                    error
-                                );
-                            }
-                        }}
+                <View
+                    style={[
+                        baseStyle.style.app,
+                        styles.loadingContainer,
+                    ]}
+                >
+                    <ActivityIndicator
+                        size="large"
+                        color={baseStyle.theme.primary}
                     />
 
-                    <TextInput
-                        style={baseStyle.style.inputStyle}
-                        placeholder="Código da sala"
-                        placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                        onChangeText={(newValue) =>
-                            setTableCode(newValue)
-                        }
-                    />
-
-                    {loading ? (
-                        <View>
-                            <ActivityIndicator
-                                size="large"
-                                color={baseStyle.theme.primary}
-                            />
-
-                            <Text
-                                style={[
-                                    baseStyle.style.textStyle,
-                                    {
-                                        marginTop: 16,
-                                    },
-                                ]}
-                            >
-                                Buscando mesa...
-                            </Text>
-                        </View>
-                    ) : null}
+                    <Text
+                        style={[
+                            baseStyle.style.textStyle,
+                            {
+                                marginTop: 16,
+                            },
+                        ]}
+                    >
+                        {loading.message}
+                    </Text>
                 </View>
 
-                <ThemedButton
-                    title="Continuar"
-                    onPress={() => goToTable(tableCode)}
-                />
-            </View>
+            ) : (
+                <View style={baseStyle.style.app}>
+                    <Background type="joinTable" />
 
-            <Modal
-                visible={showResumeModal}
-                transparent
-                animationType="fade"
-                onRequestClose={rejectSavedTable}
-            >
-                <View
-                    style={{
-                        flex: 1,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        padding: 24,
-                    }}
-                >
-                    <View
-                        style={{
-                            width: "100%",
-                            maxWidth: 400,
-                            backgroundColor: baseStyle.theme.background,
-                            borderRadius: 20,
-                            padding: 24,
-                        }}
-                    >
-                        <Text
-                            style={[
-                                baseStyle.style.headerTitleStyle,
-                                {
-                                    marginBottom: 12,
-                                },
-                            ]}
-                        >
-                            Voltar para a mesa?
-                        </Text>
+                    <View style={baseStyle.style.container}>
+                        <View style={baseStyle.style.inputContainer}>
+                            <QRCodeScanner
+                                onRead={(data) => {
+                                    try {
+                                        const url = new URL(data);
+                                        const code = url.pathname.split("/").pop();
 
-                        <Text
-                            style={[
-                                baseStyle.style.textStyle,
-                                {
-                                    marginBottom: 24,
-                                },
-                            ]}
-                        >
-                            Você estava na mesa{" "}
-                            <Text style={{ fontWeight: "bold" }}>
-                                {savedTable?.name}
-                            </Text>
-                            .
-                            {"\n\n"}
-                            Deseja voltar para ela?
-                        </Text>
+                                        if (code) {
+                                            setTableCode(code);
+                                            goToTable(code);
+                                        }
+                                    } catch (error) {
+                                        console.error(
+                                            "Erro ao buscar mesa:",
+                                            error
+                                        );
+                                    }
+                                }}
+                            />
+
+                            <TextInput
+                                style={baseStyle.style.inputStyle}
+                                placeholder="Código da sala"
+                                placeholderTextColor={baseStyle.theme.inputPlaceHolder}
+                                onChangeText={(newValue) =>
+                                    setTableCode(newValue)
+                                }
+                            />
+
+                            {loading.status ? (
+                                <View>
+                                    <ActivityIndicator
+                                        size="large"
+                                        color={baseStyle.theme.primary}
+                                    />
+
+                                    <Text
+                                        style={[
+                                            baseStyle.style.textStyle,
+                                            {
+                                                marginTop: 16,
+                                            },
+                                        ]}
+                                    >
+                                        {loading.message}
+                                    </Text>
+                                </View>
+                            ) : null}
+                        </View>
 
                         <ThemedButton
-                            title="Voltar para a mesa"
-                            onPress={resumeTable}
+                            title="Continuar"
+                            onPress={() => goToTable(tableCode)}
                         />
-
-                        <View style={{ marginTop: 12 }}>
-                            <ThemedButton
-                                title="Entrar em outra mesa"
-                                onPress={rejectSavedTable}
-                            />
-                        </View>
                     </View>
+
+                    <Modal
+                        visible={showResumeModal}
+                        transparent
+                        animationType="fade"
+                        onRequestClose={rejectSavedTable}
+                    >
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                padding: 24,
+                            }}
+                        >
+                            <View
+                                style={{
+                                    width: "100%",
+                                    maxWidth: 400,
+                                    backgroundColor: baseStyle.theme.background,
+                                    borderRadius: 20,
+                                    padding: 24,
+                                }}
+                            >
+                                <Text
+                                    style={[
+                                        baseStyle.style.headerTitleStyle,
+                                        {
+                                            marginBottom: 12,
+                                        },
+                                    ]}
+                                >
+                                    Voltar para a mesa?
+                                </Text>
+
+                                <Text
+                                    style={[
+                                        baseStyle.style.textStyle,
+                                        {
+                                            marginBottom: 24,
+                                        },
+                                    ]}
+                                >
+                                    Você estava na mesa{" "}
+                                    <Text style={{ fontWeight: "bold" }}>
+                                        {table?.name}
+                                    </Text>
+                                    .
+                                    {"\n\n"}
+                                    Deseja voltar para ela?
+                                </Text>
+
+                                <ThemedButton
+                                    title="Voltar para a mesa"
+                                    onPress={resumeTable}
+                                />
+
+                                <View style={{ marginTop: 12 }}>
+                                    <ThemedButton
+                                        title="Entrar em outra mesa"
+                                        onPress={rejectSavedTable}
+                                    />
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
                 </View>
-            </Modal>
-        </View>
+            )}
+        </>
     );
 }
 
-async function getTableData(tableCode: string): Promise<Table> {
-    const response = await api.get<Table>(
-        `/table/code/${tableCode}`,
-        {
-            timeout: 3000,
-        }
-    );
+const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
 
-    if (!response.data) {
-        throw new Error("Mesa não encontrada");
-    }
+    bottomMenuContainerStyle: {
+        display: "flex",
+        flexDirection: "row",
+        width: "100%",
+        maxWidth: 400,
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 5,
+        marginTop: 10,
+    },
 
-    return response.data;
-}
+    bottomMenuLeftContainerStyle: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        gap: 10,
+    },
+});
