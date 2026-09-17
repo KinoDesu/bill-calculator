@@ -6,6 +6,7 @@ import { useTable } from "@/contexts/TableContext";
 import { Order } from "@/models/Order";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
+import { TableSessionService } from "@/services/tableSessionService";
 import {
    router,
    Stack,
@@ -31,15 +32,27 @@ export default function TableRoom() {
 
    const { table, setTable } = useTable();
    const [orderList, setOrderList] = useState<Order[]>([]);
+   const [sessionClientId, setSessionClientId] = useState("");
 
    const [loading, setLoading] = useState({
       status: false,
       message: "",
    });
 
+   const [filter, setFilter] = useState(false);
+
+   const displayedOrderList = filter
+      ? orderList.filter((order) =>
+         order.clients.some(
+            (client) => client.clientId === sessionClientId
+         )
+      )
+      : orderList;
+
    useFocusEffect(
       useCallback(() => {
          loadTable();
+
 
       }, [tableCode])
    );
@@ -70,6 +83,20 @@ export default function TableRoom() {
                   message: "",
                });
             })
+
+         const session = await TableSessionService.get();
+         console.log(session)
+         if (!session || !session.clientId) {
+            router.replace({
+               pathname: "/table/[tableCode]/clients/join",
+               params: {
+                  tableCode: tableCode,
+               },
+            });
+         } else {
+            setSessionClientId(session.clientId);
+         }
+
 
       } catch (error) {
          console.error(
@@ -165,16 +192,17 @@ export default function TableRoom() {
                      flexGrow: 1,
                   }}>
                      <View style={[baseStyle.style.orderBoxContainer, { height: "100%", alignItems: "center", justifyContent: "center" }]}>
-                        {orderList.length === 0 ? (
+                        {displayedOrderList.length === 0 ? (
                            <Text style={[baseStyle.style.headerTitleStyle]}>
                               Nenhum pedido registrado.
                            </Text>
                         ) : (
-                           orderList.map((order) => (
+                           displayedOrderList.map((order) => (
 
                               <OrderItemBox
                                  key={order.orderId}
                                  order={order}
+                                 clientId={sessionClientId}
                                  expanded={expandedOrderId === order.orderId}
                                  onPress={() => {
                                     setExpandedOrderId(
@@ -205,7 +233,9 @@ export default function TableRoom() {
 
                         <SquareButton
                            title="F"
-                           onPress={() => console.log("Filtro")}
+                           onPress={() => {
+                              setFilter((filter) => !filter);
+                           }}
                         />
                      </View>
 
@@ -221,6 +251,7 @@ export default function TableRoom() {
       </>
    );
 }
+
 
 const styles = StyleSheet.create({
 

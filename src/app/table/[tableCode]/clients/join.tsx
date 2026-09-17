@@ -20,7 +20,7 @@ export default function joinClient() {
     const { table, setTable } = useTable();
 
     const [clientList, setClientList] = useState<Client[]>([]);
-    const [selectedClient, setSelectedCLient] = useState("");
+    const [selectedClient, setSelectedClient] = useState("");
 
     const [loading, setLoading] = useState({
         status: false,
@@ -106,8 +106,7 @@ export default function joinClient() {
                                             key={client.clientId}
                                             title={client.name}
                                             onPress={() => {
-                                                setSelectedCLient(client.clientId);
-                                                goToTable();
+                                                goToTable(client.clientId);
                                             }}
                                         />
 
@@ -118,13 +117,6 @@ export default function joinClient() {
                                     )}
 
                             </ScrollView>
-                            <ThemedButton
-                                title="Sentar-se à mesa"
-                                onPress={() => {
-                                    goToTable()
-                                }
-                                }
-                            />
                         </View>
                     </View>
                 )
@@ -132,7 +124,7 @@ export default function joinClient() {
         </>
     );
 
-    async function goToTable() {
+    async function goToTable(clientId: string) {
 
         if (!table) {
             throw new Error("Valor da mesa inválido");
@@ -141,7 +133,7 @@ export default function joinClient() {
         await saveSession({
             tableId: table.tableId!,
             tableCode: tableCode,
-            clientId: selectedClient
+            clientId: clientId
         });
 
         router.replace({

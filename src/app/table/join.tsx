@@ -25,6 +25,7 @@ export default function JoinTable() {
     });
     const [showResumeModal, setShowResumeModal] = useState(false);
     const { table, setTable } = useTable();
+    const [sessionClientId, setSessionClientId] = useState(""); 
 
     useFocusEffect(
         useCallback(() => {
@@ -45,6 +46,7 @@ export default function JoinTable() {
 
             const table = await TableService.getTableDataByCode(session.tableCode);
             setTable(table);
+            setSessionClientId(session.clientId??"");
             setShowResumeModal(true);
         } catch (error) {
 

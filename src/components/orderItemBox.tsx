@@ -4,12 +4,14 @@ import { Pressable, Text, View } from "react-native";
 
 interface OrderItemBoxProps {
   order: Order;
+  clientId?: string,
   expanded: boolean;
   onPress: () => void;
 }
 
 export function OrderItemBox({
   order,
+  clientId,
   expanded,
   onPress,
 }: OrderItemBoxProps) {
@@ -33,7 +35,7 @@ export function OrderItemBox({
                 ellipsizeMode="tail">
                 {order.name}
               </Text>
-              <Text style={[baseStyle.style.orderName, {textAlign: "right" }]}>
+              <Text style={[baseStyle.style.orderName, { textAlign: "right" }]}>
                 {(order.unitPrice * order.quantity).toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -65,17 +67,21 @@ export function OrderItemBox({
 
       {expanded && (
         <View style={baseStyle.style.orderDetails}>
-          {
-            order.clients.map((orderClient) => (
-              <View key={orderClient.clientId} style={baseStyle.style.OrderClientContainer}>
-                <Text
-                  key={orderClient.clientId}
-                  style={baseStyle.style.OrderClientName}
-                >
-                  {orderClient.clientName}
-                </Text>
-              </View>
-            ))}
+          {order.clients.map((orderClient) => (
+            <View
+              key={orderClient.clientId}
+              style={[
+                baseStyle.style.OrderClientContainer,
+                {backgroundColor: baseStyle.style.OrderClientContainer.backgroundColor + 20},
+                orderClient.clientId === clientId &&
+                { backgroundColor: baseStyle.style.OrderClientContainer.backgroundColor },
+              ]}
+            >
+              <Text style={baseStyle.style.OrderClientName}>
+                {orderClient.clientId === clientId ? `☺ ${orderClient.clientName}` : orderClient.clientName}
+              </Text>
+            </View>
+          ))}
         </View>
       )}
     </View>
