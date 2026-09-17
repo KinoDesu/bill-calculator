@@ -144,7 +144,6 @@ export default function registerClients() {
                                             ClientService.registerClient(request, table?.tableId!);
                                         }
 
-                                        console.log("Clientes registrados com sucesso");
                                     } catch (error) {
                                         console.error("Erro ao registrar cliente:", error);
                                     } finally {

@@ -4,6 +4,32 @@ import { TableRegisterRequest } from "@/models/TableRegisterRequest";
 import { api, getApiError } from "./api";
 
 export class TableService {
+    static async updateTable(request: TableRegisterRequest) {
+       try {
+            const response = await api.post<Table>(
+                `/table`,
+                request
+            );
+
+            return response.data;
+
+        } catch (error) {
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
+            }
+
+            throw error;
+        }
+    }
 
     static async getQrCode(tableId: string): Promise<QrCode> {
 

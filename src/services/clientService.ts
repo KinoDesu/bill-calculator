@@ -3,6 +3,32 @@ import { ClientRegisterRequest } from "@/models/ClientRegisterRequest";
 import { api, getApiError } from "./api";
 
 export class ClientService {
+    static async getClientById(clientId: string) {
+        try {
+            const response = await api.get(
+                `/client/${clientId}`
+            );
+
+            return response.data;
+
+        } catch (error) {
+
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
+            }
+
+            throw error;
+        }
+    }
 
     static async updateClient(
         request: ClientRegisterRequest,
