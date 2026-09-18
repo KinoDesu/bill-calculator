@@ -7,7 +7,7 @@ export type ButtonProps = Omit<PressableProps, "style"> & {
   href?: Href;
 };
 
-export function ThemedButton({
+export function SquareButton({
   title,
   href,
   onPress,
@@ -20,7 +20,7 @@ export function ThemedButton({
       router.push(href);
     }
   };
-
+  
   const baseStyle = useBaseStyle();
 
   return (
@@ -28,7 +28,7 @@ export function ThemedButton({
       {...rest}
       onPress={handlePress}
       style={({ pressed }) => [
-        baseStyle.style.buttonStyle,
+        baseStyle.style.squareButtonStyle,
         pressed && baseStyle.style.buttonPressed,
       ]}
     >
