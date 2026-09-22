@@ -22,12 +22,25 @@ export default function registerClients() {
 
     const [clientNames, setClientNames] = useState<string[]>([]);
 
+    const [newClientQuantity, setNewClientQuantity] = useState(0);
+    const [initialIndex, setInitialIndex] = useState(0);
+
     useEffect(() => {
         setLoading({ status: true, message: "Recuperando mesa" });
 
         TableService.getTableDataByCode(tableCode)
             .then((table) => {
                 setTable(table);
+
+
+                ClientService.getTableClients(table.tableId ?? "").then(
+                    (clientList) => {
+                        console.log(table.clientQuantity);
+                        console.log(clientList.length);
+                        setNewClientQuantity(table.clientQuantity - clientList.length)
+                        setInitialIndex(clientList.length + 1)
+                    }
+                );
             })
             .catch(() => {
                 console.error("Falha ao recuperar dados da mesa");
@@ -37,8 +50,6 @@ export default function registerClients() {
                 setLoading({ status: false, message: "" });
             });
     }, [tableCode]);
-
-    const clientQuantity = useTable().table?.clientQuantity;
 
     return (
         <>
@@ -99,12 +110,13 @@ export default function registerClients() {
                             }}>
                                 <View style={baseStyle.style.inputContainer}>
 
-                                    {
-                                        Array.from({ length: Math.max((clientQuantity ?? 0) - 1, 0) }, (_, index) => (
+                                    {Array.from(
+                                        { length: Math.max(newClientQuantity, 0) },
+                                        (_, index) => (
                                             <TextInput
                                                 style={baseStyle.style.inputStyle}
                                                 key={index}
-                                                placeholder={`Nome do cliente ${index + 2}`}
+                                                placeholder={`Nome do cliente ${initialIndex + index}`}
                                                 placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                                                 value={clientNames[index] ?? ""}
                                                 onChangeText={(value) => {
@@ -115,24 +127,29 @@ export default function registerClients() {
                                                     });
                                                 }}
                                             />
-
-                                        ))}
+                                        )
+                                    )}
 
                                 </View>
                             </ScrollView>
                             <ThemedButton
                                 title="Criar mesa"
-                                onPress={() => {
+                                onPress={async () => {
                                     const hasEmptyName = clientNames.some(
                                         (name) => !name || name.trim() === ""
                                     );
+
+                                    console.log(clientNames);
 
                                     if (hasEmptyName) {
                                         console.error("Todos os clientes precisam ter um nome");
                                         return;
                                     }
 
-                                    setLoading({ status: true, message: "Cadastrando clientes" });
+                                    setLoading({
+                                        status: true,
+                                        message: "Cadastrando clientes",
+                                    });
 
                                     try {
                                         for (const name of clientNames) {
@@ -141,22 +158,26 @@ export default function registerClients() {
                                                 clientId: null,
                                             };
 
-                                            ClientService.registerClient(request, table?.tableId!);
+                                            await ClientService.registerClient(
+                                                request,
+                                                table?.tableId!
+                                            );
                                         }
 
+                                        router.replace({
+                                            pathname: "/table/[tableCode]",
+                                            params: {
+                                                tableCode,
+                                            },
+                                        });
                                     } catch (error) {
                                         console.error("Erro ao registrar cliente:", error);
                                     } finally {
-                                        setLoading({ status: false, message: "" });
+                                        setLoading({
+                                            status: false,
+                                            message: "",
+                                        });
                                     }
-
-                                    router.replace({
-                                        pathname: "/table/[tableCode]",
-                                        params: {
-                                            tableCode
-                                        },
-                                    });
-
                                 }}
                             />
                         </View>

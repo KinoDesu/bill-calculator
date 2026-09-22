@@ -9,6 +9,7 @@ import { TableRegisterRequest } from "@/models/TableRegisterRequest";
 import { ClientService } from "@/services/clientService";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -39,19 +40,29 @@ export function CustomMenu({
   onLoadingChange,
 }: CustomMenuProps) {
   const baseStyle = useBaseStyle();
+
   const [menuOptionSelected, setMenuOptionSelected] = useState({
     changeName: false,
     editTable: false,
     cleanOrders: false,
   });
-  const [menuNewNameInput, setMenuNewNameInput] = useState("");
-  const [menuNewQuantityInput, setMenuNewQuantityInput] = useState(table.clientQuantity);
-  const hasSelectedMenuOption = Object.values(menuOptionSelected).some(Boolean);
+
+  const [menuNewClientNameInput, setMenuNewClientNameInput] = useState("");
+  const [menuNewTableNameInput, setMenuNewTableNameInput] = useState("");
+  const [menuNewQuantityInput, setMenuNewQuantityInput] = useState(
+    table.clientQuantity
+  );
+  const [menuCleanOrdersInput, setMenuCleanOrdersInput] = useState("");
+
+  const hasSelectedMenuOption =
+    Object.values(menuOptionSelected).some(Boolean);
 
   useEffect(() => {
-    setMenuNewNameInput("");
+    setMenuNewClientNameInput(sessionClientInfo?.name ?? "");
+    setMenuNewTableNameInput(table.name);
     setMenuNewQuantityInput(table.clientQuantity);
-  }, [table]);
+    setMenuCleanOrdersInput("");
+  }, [table, sessionClientInfo]);
 
   function closeMenuOption() {
     setMenuOptionSelected({
@@ -62,39 +73,132 @@ export function CustomMenu({
   }
 
   async function updateClientName() {
-    onLoadingChange({ status: true, message: "Atualizando nome" });
-    const request: ClientRegisterRequest = {
-      clientId: sessionClientId,
-      name: menuNewNameInput,
-    };
-    await ClientService.updateClient(request, table.tableId ?? "");
-    await onRefresh();
-    closeMenuOption();
-    onLoadingChange({ status: false, message: "" });
+    const currentName = sessionClientInfo?.name ?? "";
+    const newName = menuNewClientNameInput.trim();
+
+    // Não houve alteração
+    if (newName === currentName.trim()) {
+      closeMenuOption();
+      return;
+    }
+
+    // Não permite nome vazio
+    if (!newName) {
+      return;
+    }
+
+    try {
+      onLoadingChange({
+        status: true,
+        message: "Atualizando nome",
+      });
+
+      const request: ClientRegisterRequest = {
+        clientId: sessionClientId,
+        name: newName,
+      };
+
+      await ClientService.updateClient(
+        request,
+        table.tableId ?? ""
+      );
+
+      await onRefresh();
+      closeMenuOption();
+    } catch (error) {
+      console.error("Erro ao atualizar nome:", error);
+    } finally {
+      onLoadingChange({
+        status: false,
+        message: "",
+      });
+    }
   }
 
   async function updateTable() {
-    onLoadingChange({ status: true, message: "Atualizando mesa" });
-    const request: TableRegisterRequest = {
-      tableId: table.tableId ?? "",
-      clientQuantity: menuNewQuantityInput,
-      tableName: menuNewNameInput,
-    };
-    await TableService.updateTable(request);
-    await onRefresh();
-    closeMenuOption();
-    onLoadingChange({ status: false, message: "" });
+    const newTableName = menuNewTableNameInput.trim();
+    const currentTableName = table.name.trim();
+
+    const nameChanged = newTableName !== currentTableName;
+    const quantityChanged =
+      menuNewQuantityInput !== table.clientQuantity;
+
+    // Nenhuma alteração
+    if (!nameChanged && !quantityChanged) {
+      closeMenuOption();
+      return;
+    }
+
+    // Não permite nome vazio
+    if (!newTableName) {
+      return;
+    }
+
+    try {
+      onLoadingChange({
+        status: true,
+        message: "Atualizando mesa",
+      });
+
+      const request: TableRegisterRequest = {
+        tableId: table.tableId ?? "",
+        clientQuantity: menuNewQuantityInput,
+        tableName: newTableName,
+      };
+
+      await TableService.updateTable(request);
+
+      const tableCode = table.code ?? "";
+
+      // Se somente o nome mudou ou a quantidade não diminuiu,
+      // apenas atualiza os dados da mesa.
+      if (!quantityChanged) {
+        await onRefresh();
+        closeMenuOption();
+        return;
+      }
+
+      // Se a quantidade mudou, vai para o cadastro dos novos clientes.
+      router.replace({
+        pathname: "/table/[tableCode]/clients/create",
+        params: {
+          tableCode,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar mesa:", error);
+    } finally {
+      onLoadingChange({
+        status: false,
+        message: "",
+      });
+    }
   }
 
   async function cleanOrders() {
-    if (menuNewNameInput !== "excluir") {
+    if (menuCleanOrdersInput.trim() !== "excluir") {
       return;
     }
-    onLoadingChange({ status: true, message: "Excluindo pedidos" });
-    await OrderService.deleteAllByTableId(table.tableId ?? "");
-    await onRefresh();
-    closeMenuOption();
-    onLoadingChange({ status: false, message: "" });
+
+    try {
+      onLoadingChange({
+        status: true,
+        message: "Excluindo pedidos",
+      });
+
+      await OrderService.deleteAllByTableId(table.tableId ?? "");
+      await onRefresh();
+
+      closeMenuOption();
+      setMenuCleanOrdersInput("");
+    } catch (error) {
+      console.error("Erro ao excluir pedidos:", error);
+    } finally {
+      onLoadingChange({
+        status: false,
+        message: "",
+      });
+    }
   }
 
   if (!visible) {
@@ -113,28 +217,48 @@ export function CustomMenu({
           <View style={styles.menuOptionContainer}>
             <ThemedButton
               title="Alterar seu nome"
-              onPress={() => setMenuOptionSelected({
-                changeName: !menuOptionSelected.changeName,
-                editTable: false,
-                cleanOrders: false,
-              })}
+              onPress={() =>
+                setMenuOptionSelected({
+                  changeName: !menuOptionSelected.changeName,
+                  editTable: false,
+                  cleanOrders: false,
+                })
+              }
             />
+
             {menuOptionSelected.changeName && (
               <View style={styles.optionContent}>
-                <View style={[baseStyle.style.inputContainer, styles.inputContainer]}>
+                <View
+                  style={[
+                    baseStyle.style.inputContainer,
+                    styles.inputContainer,
+                  ]}
+                >
                   <View style={styles.fullWidth}>
-                    <Text style={baseStyle.style.headerTitleStyle}>Nome Atual:</Text>
-                    <Text style={baseStyle.style.headerTitleStyle}>{sessionClientInfo?.name}</Text>
+                    <Text style={baseStyle.style.headerTitleStyle}>
+                      Nome Atual:
+                    </Text>
+
+                    <Text style={baseStyle.style.headerTitleStyle}>
+                      {sessionClientInfo?.name}
+                    </Text>
                   </View>
+
                   <TextInput
                     style={baseStyle.style.inputStyle}
                     placeholder="Novo nome"
-                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                    value={menuNewNameInput}
-                    onChangeText={setMenuNewNameInput}
+                    placeholderTextColor={
+                      baseStyle.theme.inputPlaceHolder
+                    }
+                    value={menuNewClientNameInput}
+                    onChangeText={setMenuNewClientNameInput}
                   />
                 </View>
-                <ThemedButton title="Salvar" onPress={updateClientName} />
+
+                <ThemedButton
+                  title="Salvar"
+                  onPress={updateClientName}
+                />
               </View>
             )}
           </View>
@@ -144,26 +268,43 @@ export function CustomMenu({
           <View style={styles.menuOptionContainer}>
             <ThemedButton
               title="Editar mesa"
-              onPress={() => setMenuOptionSelected({
-                changeName: false,
-                editTable: !menuOptionSelected.editTable,
-                cleanOrders: false,
-              })}
+              onPress={() =>
+                setMenuOptionSelected({
+                  changeName: false,
+                  editTable: !menuOptionSelected.editTable,
+                  cleanOrders: false,
+                })
+              }
             />
+
             {menuOptionSelected.editTable && (
               <View style={styles.optionContent}>
-                <View style={[baseStyle.style.inputContainer, styles.inputContainer]}>
+                <View
+                  style={[
+                    baseStyle.style.inputContainer,
+                    styles.inputContainer,
+                  ]}
+                >
                   <View style={styles.fullWidth}>
-                    <Text style={baseStyle.style.headerTitleStyle}>Nome Atual:</Text>
-                    <Text style={baseStyle.style.headerTitleStyle}>{table.name}</Text>
+                    <Text style={baseStyle.style.headerTitleStyle}>
+                      Nome Atual:
+                    </Text>
+
+                    <Text style={baseStyle.style.headerTitleStyle}>
+                      {table.name}
+                    </Text>
                   </View>
+
                   <TextInput
                     style={baseStyle.style.inputStyle}
                     placeholder="Novo nome"
-                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                    value={menuNewNameInput}
-                    onChangeText={setMenuNewNameInput}
+                    placeholderTextColor={
+                      baseStyle.theme.inputPlaceHolder
+                    }
+                    value={menuNewTableNameInput}
+                    onChangeText={setMenuNewTableNameInput}
                   />
+
                   <CustomNumberInput
                     label="Clientes"
                     value={menuNewQuantityInput}
@@ -172,7 +313,11 @@ export function CustomMenu({
                     onChange={setMenuNewQuantityInput}
                   />
                 </View>
-                <ThemedButton title="Salvar" onPress={updateTable} />
+
+                <ThemedButton
+                  title="Salvar"
+                  onPress={updateTable}
+                />
               </View>
             )}
           </View>
@@ -182,28 +327,48 @@ export function CustomMenu({
           <View style={styles.menuOptionContainer}>
             <ThemedButton
               title="Limpar pedidos"
-              onPress={() => setMenuOptionSelected({
-                changeName: false,
-                editTable: false,
-                cleanOrders: !menuOptionSelected.cleanOrders,
-              })}
+              onPress={() =>
+                setMenuOptionSelected({
+                  changeName: false,
+                  editTable: false,
+                  cleanOrders: !menuOptionSelected.cleanOrders,
+                })
+              }
             />
+
             {menuOptionSelected.cleanOrders && (
               <View style={styles.optionContent}>
-                <View style={[baseStyle.style.inputContainer, styles.inputContainer]}>
+                <View
+                  style={[
+                    baseStyle.style.inputContainer,
+                    styles.inputContainer,
+                  ]}
+                >
                   <View style={styles.fullWidth}>
-                    <Text style={baseStyle.style.headerTitleStyle}>Tem certeza?</Text>
-                    <Text style={baseStyle.style.headerTitleStyle}>"excluir" para confirmar</Text>
+                    <Text style={baseStyle.style.headerTitleStyle}>
+                      Tem certeza?
+                    </Text>
+
+                    <Text style={baseStyle.style.headerTitleStyle}>
+                      "excluir" para confirmar
+                    </Text>
                   </View>
+
                   <TextInput
                     style={baseStyle.style.inputStyle}
-                    placeholder={'"excluir"'}
-                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                    value={menuNewNameInput}
-                    onChangeText={setMenuNewNameInput}
+                    placeholder='"excluir"'
+                    placeholderTextColor={
+                      baseStyle.theme.inputPlaceHolder
+                    }
+                    value={menuCleanOrdersInput}
+                    onChangeText={setMenuCleanOrdersInput}
                   />
                 </View>
-                <ThemedButton title="Confirmar" onPress={cleanOrders} />
+
+                <ThemedButton
+                  title="Confirmar"
+                  onPress={cleanOrders}
+                />
               </View>
             )}
           </View>
@@ -226,11 +391,13 @@ const styles = StyleSheet.create({
     zIndex: 9999,
     elevation: 9999,
   },
+
   menuHeader: {
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-between",
   },
+
   menuContainer: {
     width: 350,
     alignItems: "center",
@@ -242,17 +409,21 @@ const styles = StyleSheet.create({
     borderColor: "#ffffff",
     borderRadius: 10,
   },
+
   menuOptionContainer: {
     width: "100%",
     alignItems: "center",
   },
+
   optionContent: {
     width: "100%",
     gap: 15,
   },
+
   inputContainer: {
     paddingVertical: 15,
   },
+
   fullWidth: {
     width: "100%",
   },
