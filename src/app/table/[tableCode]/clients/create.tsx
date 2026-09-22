@@ -133,7 +133,7 @@ export default function registerClients() {
                                 </View>
                             </ScrollView>
                             <ThemedButton
-                                title="Criar mesa"
+                                title="Registrar clientes"
                                 onPress={async () => {
                                     const hasEmptyName = clientNames.some(
                                         (name) => !name || name.trim() === ""
