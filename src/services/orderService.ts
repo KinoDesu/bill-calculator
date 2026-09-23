@@ -3,6 +3,59 @@ import { OrderRegisterRequest } from "@/models/OrderRegisterRequest";
 import { api, getApiError } from "./api";
 
 export class OrderService {
+    static async getById(orderId: string): Promise<Order> {
+        try {
+
+            if (!orderId) {
+                throw new Error(`Identificador de pedido nulo`);
+            }
+            const response = await api.get(`/order/${orderId}`)
+
+            return response.data;
+
+        } catch (error) {
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
+            }
+
+            throw error;
+        }
+    }
+
+    static async deleteById(orderId: string) {
+        try {
+            await api.delete(
+                `/order/${orderId}`
+            );
+
+        } catch (error) {
+
+            const apiError = getApiError(error);
+
+            if (apiError) {
+                console.error("Status:", apiError.status);
+
+                apiError.errors.forEach(error => {
+                    console.error("Code:", error.code);
+                    console.error("Message:", error.message);
+                    console.error("Level:", error.level);
+                    console.error("Description:", error.description);
+                });
+            }
+
+            throw error;
+        }
+    }
+
     static async deleteAllByTableId(tableId: string) {
         try {
             await api.delete(

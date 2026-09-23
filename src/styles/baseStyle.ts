@@ -26,7 +26,7 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
         justifyContent: "space-between",
         paddingVertical: 5,
         marginVertical: 25,
-        gap:15,
+        gap: 15,
     },
     appTitleStyle: {
         color: theme.title,
@@ -262,15 +262,13 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "flex-start",
         gap: 5,
-        textAlign:"center"
+        textAlign: "center"
     },
 
     orderDetails: {
         display: "flex",
         flexDirection: "row",
         flexWrap: "wrap",
-        padding: 10,
-        borderTopWidth: 1,
         gap: 8,
         backgroundColor: theme.secondaryBackground,
         borderBottomRightRadius: 10,
@@ -287,7 +285,7 @@ const style = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
         color: theme.primary,
         fontSize: 12,
         fontWeight: 600,
-        textAlign:"center"
+        textAlign: "center"
     },
 
     OrderClientContainer: {

@@ -20,7 +20,7 @@ export function SquareButton({
       router.push(href);
     }
   };
-  
+
   const baseStyle = useBaseStyle();
 
   return (

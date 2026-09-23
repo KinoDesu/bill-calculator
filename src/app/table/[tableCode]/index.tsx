@@ -19,6 +19,7 @@ import {
 import { useCallback, useState } from "react";
 import {
    ActivityIndicator,
+   Alert,
    Platform,
    ScrollView,
    StyleSheet,
@@ -124,6 +125,18 @@ export default function TableRoom() {
       });
    }
 
+   const handleDeleteOrder = async (orderId: string) => {
+      try {
+         await OrderService.deleteById(orderId);
+
+         setOrderList((currentOrders) =>
+            currentOrders.filter((order) => order.orderId !== orderId)
+         );
+      } catch (error) {
+         Alert.alert("Erro", "Não foi possível excluir o pedido.");
+      }
+   };
+
    function getSessionClientInfo(clientId: string): Promise<Client> {
       const client = ClientService.getClientById(clientId);
       return client.then((response) => response);
@@ -225,6 +238,7 @@ export default function TableRoom() {
                                           : order.orderId
                                     );
                                  }}
+                                 onDelete={handleDeleteOrder}
                               />
                            ))
                         )}

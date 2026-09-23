@@ -35,8 +35,6 @@ export default function registerClients() {
 
                 ClientService.getTableClients(table.tableId ?? "").then(
                     (clientList) => {
-                        console.log(table.clientQuantity);
-                        console.log(clientList.length);
                         setNewClientQuantity(table.clientQuantity - clientList.length)
                         setInitialIndex(clientList.length + 1)
                     }
@@ -138,8 +136,6 @@ export default function registerClients() {
                                     const hasEmptyName = clientNames.some(
                                         (name) => !name || name.trim() === ""
                                     );
-
-                                    console.log(clientNames);
 
                                     if (hasEmptyName) {
                                         console.error("Todos os clientes precisam ter um nome");
