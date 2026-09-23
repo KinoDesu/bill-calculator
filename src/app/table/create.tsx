@@ -138,7 +138,7 @@ export default function createTable() {
                   </View>
 
                   <ThemedButton
-                     title="Registrar clientes"
+                     title="Criar mesa"
                      onPress={handleCreateTable}
                   />
                </View>
