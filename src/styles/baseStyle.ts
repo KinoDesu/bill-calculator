@@ -312,6 +312,7 @@ const style = (
             alignItems: "center",
             justifyContent: "center",
             padding: 20,
+            gap: 15
         },
 
         permissionText: {
@@ -319,7 +320,6 @@ const style = (
             fontSize: 18,
             fontWeight: "700",
             textAlign: "center",
-            marginBottom: 20,
         },
 
         permissionButton: {
@@ -355,7 +355,9 @@ const style = (
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            padding: 10,
+            paddingVertical: 10,
+            paddingLeft: 10,
+            gap: 5
         },
 
         orderInfo: {
@@ -384,10 +386,12 @@ const style = (
         },
 
         orderPrice: {
+            display: "flex",
+            flexDirection: "row",
             color: theme.primary,
             fontSize: 12,
             fontWeight: "600",
-            textAlign: "center",
+            alignItems: "center",
         },
 
         OrderClientContainer: {

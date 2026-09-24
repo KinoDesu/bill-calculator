@@ -1,5 +1,4 @@
 import { Background } from "@/components/background";
-import { ThemedButton } from "@/components/button";
 import ClientSelect from "@/components/ClientSelect";
 import { CustomNumberInput } from "@/components/customNumberInput";
 import { useBaseStyle } from "@/contexts/StyleContext";
@@ -10,6 +9,7 @@ import { ClientService } from "@/services/clientService";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
 import { TableSessionService } from "@/services/tableSessionService";
+import { MaterialIcons } from "@expo/vector-icons";
 import {
     router,
     useFocusEffect,
@@ -431,14 +431,7 @@ export default function Billing() {
                                                         )
                                                     }
                                                 >
-                                                    <Text
-                                                        style={
-                                                            baseStyle.style
-                                                                .removeClientText
-                                                        }
-                                                    >
-                                                        ×
-                                                    </Text>
+                                                    <MaterialIcons name={"close"} size={24} color={baseStyle.theme.primary} />
                                                 </Pressable>
                                             </View>
                                         );
@@ -506,8 +499,6 @@ export default function Billing() {
                             </View>
                         )}
                     </View>
-                    <ThemedButton
-                        title="Olá" />
                 </View>
 
             </KeyboardAwareScrollView>

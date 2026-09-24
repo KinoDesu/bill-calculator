@@ -10,6 +10,7 @@ import { OrderRegisterRequest } from "@/models/OrderRegisterRequest";
 import { ClientService } from "@/services/clientService";
 import { OrderService } from "@/services/orderService";
 import { TableService } from "@/services/tableService";
+import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -367,13 +368,7 @@ export default function OrderForm({ mode }: OrderFormProps) {
                                                             },
                                                         ]}
                                                     >
-                                                        <Text
-                                                            style={
-                                                                baseStyle.style.removeClientButtonText
-                                                            }
-                                                        >
-                                                            ×
-                                                        </Text>
+                                                        <MaterialIcons name={"close"} size={24} color={baseStyle.theme.primary} />
                                                     </Pressable>
                                                 </View>
                                             );

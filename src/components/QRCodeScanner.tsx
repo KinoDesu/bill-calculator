@@ -1,4 +1,5 @@
 import { useBaseStyle } from "@/contexts/StyleContext";
+import { MaterialIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useIsFocused } from "expo-router";
 import { useEffect, useState } from "react";
@@ -37,15 +38,12 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
 
     if (!permission.granted) {
         return (
-            <View style={baseStyle.style.permissionContainer}>
-                <Text style={baseStyle.style.permissionText}>
-                    Precisamos acessar sua câmera para ler o QR Code.
-                </Text>
-
-                <Pressable onPress={requestPermission}>
-                    <Text style={baseStyle.style.permissionButton}>
-                        Permitir acesso à câmera
+            <View>
+                <Pressable style={baseStyle.style.permissionContainer} onPress={requestPermission}>
+                    <Text style={baseStyle.style.permissionText}>
+                        Precisamos acessar sua câmera para ler o QR Code.
                     </Text>
+                    <MaterialIcons name={"qr-code-scanner"} size={60} color={baseStyle.theme.primary} />
                 </Pressable>
             </View>
         );
@@ -54,6 +52,18 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
     // Não mantém a câmera montada quando sai da página
     if (!isFocused) {
         return null;
+    }
+
+    function handlePlatformIcon() {
+        switch (Platform.OS) {
+            case "ios":
+                return "flip-camera-ios"
+            case "android":
+                return "flip-camera-android"
+            default:
+                return "cameraswitch"
+
+        }
     }
 
     return (
@@ -81,6 +91,7 @@ export function QRCodeScanner({ onRead }: QRCodeScannerProps) {
             {Platform.OS !== "web" && (
                 <SquareButton
                     title="C"
+                    icon={handlePlatformIcon()}
                     onPress={toggleCamera}
                 />
             )}

@@ -216,8 +216,8 @@ export function CustomMenu({
       >
         <View style={styles.menuContainer}>
           <View style={styles.menuHeader}>
-            <SquareButton title="X" onPress={onClose} />
-            <SquareButton title="S" onPress={onLeaveTable} />
+            <SquareButton title="X" icon="close" onPress={onClose} />
+            <SquareButton title="S" icon="logout" onPress={onLeaveTable} />
           </View>
 
           {(menuOptionSelected.changeName || !hasSelectedMenuOption) && (

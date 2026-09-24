@@ -20,6 +20,7 @@ import { useCallback, useState } from "react";
 import {
    ActivityIndicator,
    Alert,
+   Modal,
    Platform,
    ScrollView,
    StyleSheet,
@@ -38,6 +39,7 @@ export default function TableRoom() {
    const [orderList, setOrderList] = useState<Order[]>([]);
    const [sessionClientId, setSessionClientId] = useState("");
    const [sessionClientInfo, setSessionClientInfo] = useState<Client>();
+   const [showModal, setShowModal] = useState(false);
 
    const [loading, setLoading] = useState({
       status: false,
@@ -134,6 +136,8 @@ export default function TableRoom() {
          );
       } catch (error) {
          Alert.alert("Erro", "Não foi possível excluir o pedido.");
+      } finally {
+         setShowModal(false);
       }
    };
 
@@ -161,6 +165,7 @@ export default function TableRoom() {
                   >
                      <SquareButton
                         title="M"
+                        icon="menu"
                         onPress={() => setMenuVisible((menuVisible) => !menuVisible)}
                      />
                   </View>
@@ -174,6 +179,7 @@ export default function TableRoom() {
                   >
                      <SquareButton
                         title="?"
+                        icon="qr-code-2"
                         href={{
                            pathname: "/table/[tableCode]/invite",
                            params: {
@@ -238,7 +244,8 @@ export default function TableRoom() {
                                           : order.orderId
                                     );
                                  }}
-                                 onDelete={handleDeleteOrder}
+                                 onDelete={() => { setShowModal(true); }}
+                                 onCancel={() => { setShowModal(false) }}
                               />
                            ))
                         )}
@@ -249,6 +256,7 @@ export default function TableRoom() {
                      <View style={styles.bottomMenuLeftContainerStyle}>
                         <SquareButton
                            title="P"
+                           icon="add-shopping-cart"
                            onPress={() => {
                               router.push({
                                  pathname: "/table/[tableCode]/order/create",
@@ -261,12 +269,14 @@ export default function TableRoom() {
 
                         <SquareButton
                            title="F"
+                           icon={filter ? "filter-alt-off" : "filter-alt"}
                            onPress={() => setFilter((filter) => !filter)}
                         />
                      </View>
 
                      <SquareButton
                         title="C"
+                        icon="payments"
                         onPress={() => {
                            router.push({
                               pathname: "/table/[tableCode]/billing",
@@ -289,10 +299,60 @@ export default function TableRoom() {
                   onRefresh={loadTable}
                   onLoadingChange={setLoading}
                />
+
+               <Modal
+                  visible={showModal}
+                  transparent
+                  animationType="fade"
+                  onRequestClose={() => { return }}
+               >
+                  <View
+                     style={{
+                        flex: 1,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        padding: 24,
+                     }}
+                  >
+                     <View
+                        style={{
+                           width: "100%",
+                           maxWidth: 350,
+                           backgroundColor: baseStyle.theme.button,
+                           borderRadius: 20,
+                           padding: 24,
+                           borderWidth: 1,
+                           borderColor: baseStyle.theme.inputBorder
+                        }}
+                     >
+                        <Text
+                           style={[
+                              baseStyle.style.headerTitleStyle,
+                              {
+                                 marginBottom: 12,
+                              },
+                           ]}
+                        >
+                           Tem certeza?
+                        </Text>
+
+                        <View style={{ display: "flex", flexDirection: "row", gap: 5, justifyContent: "space-between" }}>
+                           <SquareButton
+                              title="X"
+                              icon="cancel"
+                              onPress={() => { setShowModal(false); }}
+                           />
+                           <SquareButton
+                              title="O"
+                              icon="check-circle"
+                              onPress={async () => handleDeleteOrder(expandedOrderId ?? "")}
+                           />
+                        </View>
+                     </View>
+                  </View>
+               </Modal>
             </View>
-
-
-
          )}
       </>
    );

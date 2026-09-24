@@ -1,5 +1,6 @@
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { Client } from "@/models/Client";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
     Pressable,
@@ -100,9 +101,8 @@ export default function ClientSelect({
                     },
                 ]}
             >
-                <Text style={baseStyle.style.clientInputButtonTextStyle}>
-                    {open ? "▴" : "▾"}
-                </Text>
+
+                <MaterialIcons name={open ? "arrow-drop-up" : "arrow-drop-down"} size={36} color={baseStyle.theme.primary} />
             </Pressable>
 
             {open && (

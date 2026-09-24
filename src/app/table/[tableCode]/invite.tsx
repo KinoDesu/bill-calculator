@@ -1,8 +1,10 @@
 import { Background } from "@/components/background";
+import { SquareButton } from "@/components/squareButton";
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
 import { QrCode } from "@/models/QrCode";
 import { TableService } from "@/services/tableService";
+import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Text, View } from "react-native";
@@ -105,9 +107,21 @@ export default function Invite() {
                                     alignItems: "center"
                                 }}>
                                     <Text style={baseStyle.style.headerTitleStyle}>Código da sala</Text>
-                                    <Text style={baseStyle.style.headerTitleStyle}>{qrCode.code}</Text>
+                                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 15 }}>
+                                        <Text style={baseStyle.style.headerTitleStyle}>{qrCode.code}</Text>
+                                        <SquareButton
+                                            style={{ maxHeight: 30, maxWidth: 30 }}
+                                            title="C"
+                                            icon="content-copy"
+                                            iconSize={24}
+                                            onPress={async () => {
+                                                await Clipboard.setStringAsync(qrCode.code);
+                                            }}
+                                        />
+                                    </View>
                                 </View>
                             </View>
+
                         )}
                     </View>
                 </View>

@@ -19,7 +19,7 @@ export function CustomNumberInput({
 }: NumberInputProps) {
 
   const baseStyle = useBaseStyle();
-  
+
   function decrease() {
     if (value > min) {
       onChange(value - 1);
@@ -54,6 +54,8 @@ export function CustomNumberInput({
       <View style={baseStyle.style.numberInputControls}>
         <SquareButton
           title="-"
+          icon="remove"
+          iconSize={24}
           onPress={decrease}
         />
 
@@ -66,6 +68,8 @@ export function CustomNumberInput({
 
         <SquareButton
           title="+"
+          icon="add"
+          iconSize={24}
           onPress={increase}
         />
       </View>

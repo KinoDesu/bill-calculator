@@ -1,8 +1,9 @@
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
 import { Order } from "@/models/Order";
+import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { SquareButton } from "./squareButton";
 
 interface OrderItemBoxProps {
@@ -11,6 +12,7 @@ interface OrderItemBoxProps {
   expanded: boolean;
   onPress: () => void;
   onDelete: (orderId: string) => void;
+  onCancel: () => void;
 }
 
 export function OrderItemBox({
@@ -19,6 +21,7 @@ export function OrderItemBox({
   expanded,
   onPress,
   onDelete,
+  onCancel,
 }: OrderItemBoxProps) {
 
   const baseStyle = useBaseStyle();
@@ -39,21 +42,7 @@ export function OrderItemBox({
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      "Excluir pedido",
-      `Tem certeza que deseja excluir "${order.name}"?`,
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () => onDelete(order.orderId),
-        },
-      ]
-    );
+    onDelete(order.orderId);
   };
 
   return (
@@ -91,46 +80,37 @@ export function OrderItemBox({
               </Text>
             </View>
 
-            <Text style={baseStyle.style.orderPrice}>
-              {order.quantity} x{" "}
-              {order.unitPrice.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}{" "}
-              | {order.clients.length} ☺{" "}
-              {(
-                (order.unitPrice * order.quantity) /
-                order.clients.length
-              ).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={baseStyle.style.orderPrice}>
+                {order.quantity} x{" "}
+                {order.unitPrice.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}{" "}
+                | {order.clients.length}
+              </Text>
+
+              <MaterialIcons
+                name="group"
+                size={18}
+                color={baseStyle.theme.primary}
+                style={{ marginLeft: 3, marginRight: 3 }}
+              />
+
+              <Text style={baseStyle.style.orderPrice}>
+                {(
+                  (order.unitPrice * order.quantity) /
+                  order.clients.length
+                ).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </Text>
+            </View>
           </View>
 
-          <View style={{ width: 30 }}>
-            {!expanded ? (
-              <Text
-                style={[
-                  baseStyle.style.textStyle,
-                  {
-                    textAlign: "center",
-                    userSelect: "none",
-                  },
-                ]}
-              >
-                +
-              </Text>
-            ) : (
-              <Text
-                style={[
-                  baseStyle.style.textStyle,
-                  { textAlign: "center" },
-                ]}
-              >
-                -
-              </Text>
-            )}
+          <View style={{ width: 36, alignItems: "center", justifyContent: "center" }}>
+            <MaterialIcons name={expanded ? "arrow-drop-up" : "arrow-drop-down"} size={36} color={baseStyle.theme.primary} />
           </View>
         </View>
       </Pressable>
@@ -164,11 +144,20 @@ export function OrderItemBox({
                   },
                 ]}
               >
-                <Text style={baseStyle.style.OrderClientName}>
-                  {orderClient.clientId === clientId
-                    ? `☺ ${orderClient.clientName}`
-                    : orderClient.clientName}
-                </Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  {orderClient.clientId === clientId && (
+                    <MaterialIcons
+                      name="star"
+                      size={16}
+                      color={baseStyle.theme.primary}
+                      style={{ marginRight: 4 }}
+                    />
+                  )}
+
+                  <Text style={baseStyle.style.OrderClientName}>
+                    {orderClient.clientName}
+                  </Text>
+                </View>
               </View>
             ))}
           </View>
@@ -181,12 +170,18 @@ export function OrderItemBox({
             }}
           >
             <SquareButton
+              style={{ maxWidth: 30, maxHeight: 30 }}
               title="E"
+              icon="edit"
+              iconSize={24}
               onPress={handleEdit}
             />
 
             <SquareButton
+              style={{ maxWidth: 30, maxHeight: 30 }}
               title="D"
+              icon="delete"
+              iconSize={24}
               onPress={handleDelete}
             />
           </View>
