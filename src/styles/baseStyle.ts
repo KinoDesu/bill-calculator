@@ -45,6 +45,18 @@ const style = (
             gap: 15,
         },
 
+        container: {
+            width: "95%",
+            alignSelf: "center",
+            flex: 1,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingVertical: 5,
+            marginVertical: 25,
+            gap: 15,
+        },
+
 
         /*
          * ---------------------------------------------------------
@@ -424,13 +436,11 @@ const style = (
             borderRadius: 10,
 
             overflow: "hidden",
-
             zIndex: 1000,
             elevation: 1000,
         },
 
         selectedClientsContainer: {
-            width: "100%",
             maxWidth: 350,
 
             flexDirection: "row",
@@ -444,12 +454,10 @@ const style = (
 
         selectedClientContainer: {
             minHeight: 40,
-            width: "100%",
-            maxWidth: 150,
-
+            width: 150,
             flexDirection: "row",
             alignItems: "center",
-            justifyContent: "space-around",
+            justifyContent: "space-between",
 
             paddingLeft: 5,
 
@@ -461,8 +469,6 @@ const style = (
         },
 
         selectedClientName: {
-            flex: 1,
-
             color: theme.primary,
             fontSize: 12,
             fontWeight: "600",
@@ -678,6 +684,12 @@ const style = (
         baseContainerScroll: {
             width: "100%",
         },
+
+        billPriceText: {
+            color: theme.title,
+            fontSize: 24,
+            fontWeight: 700
+        }
     });
 
 export const BaseStyle = {

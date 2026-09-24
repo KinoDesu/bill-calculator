@@ -14,14 +14,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Platform,
     Pressable,
-    ScrollView,
     Text,
     TextInput,
     useWindowDimensions,
-    View,
+    View
 } from "react-native";
+import { KeyboardAwareScrollView, KeyboardToolbar } from "react-native-keyboard-controller";
 
 interface OrderFormProps {
     mode: "create" | "edit";
@@ -247,170 +246,155 @@ export default function OrderForm({ mode }: OrderFormProps) {
                 <View style={baseStyle.style.app}>
 
                     <Background type="home" />
+                    <KeyboardAwareScrollView bottomOffset={150} extraKeyboardSpace={200} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
 
-                    <View style={baseStyle.style.container}>
+                        <View style={baseStyle.style.container}>
 
-                        <View style={baseStyle.style.inputContainer}>
-
-                            <TextInput
-                                style={baseStyle.style.inputStyle}
-                                placeholder="Item"
-                                placeholderTextColor={
-                                    baseStyle.theme.inputPlaceHolder
-                                }
-                                value={itemName}
-                                onChangeText={setItemName}
-                            />
-
-                            <View
-                                style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    maxWidth: 350,
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    gap: 5,
-                                }}
-                            >
-                                <Text style={baseStyle.style.buttonText}>
-                                    R$
-                                </Text>
+                            <View style={baseStyle.style.inputContainer}>
 
                                 <TextInput
-                                    style={[
-                                        baseStyle.style.inputStyle,
-                                        { maxWidth: 200 },
-                                    ]}
-                                    placeholder="Valor"
+                                    style={baseStyle.style.inputStyle}
+                                    placeholder="Item"
                                     placeholderTextColor={
                                         baseStyle.theme.inputPlaceHolder
                                     }
-                                    keyboardType="numeric"
-                                    value={itemPriceText}
-                                    onChangeText={handleItemPriceChange}
+                                    value={itemName}
+                                    onChangeText={setItemName}
                                 />
-                            </View>
 
-                            <CustomNumberInput
-                                label="Quantidade"
-                                min={1}
-                                max={100}
-                                value={itemQuantity}
-                                onChange={setItemQuantity}
-                            />
-
-                            <ClientSelect
-                                clients={clients}
-                                selectedClientIds={selectedClientIdList}
-                                value={selectedClientId}
-                                onChange={(clientId) => {
-                                    setSelectedClientIdList((current) => [
-                                        ...current,
-                                        clientId,
-                                    ]);
-
-                                    setSelectedClientId("");
-                                }}
-                            />
-
-                        </View>
-
-                        {selectedClientIdList.length > 0 && (
-                            <ScrollView
-                                style={[
-                                    baseStyle.style.selectedClientsScroll,
-                                    {
-                                        maxHeight: screenHeight * 0.30,
-                                        ...(Platform.OS === "web" && {
-                                            scrollbarWidth: "thin",
-                                            scrollbarColor:
-                                                `${baseStyle.theme.primary} transparent`,
-                                        }),
-                                    },
-                                ]}
-                                contentContainerStyle={{
-                                    alignItems: "flex-start",
-                                    flexGrow: 1,
-                                }}
-                            >
                                 <View
-                                    style={[
-                                        baseStyle.style.selectedClientsContainer,
-                                        {
-                                            height: "100%",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                        },
-                                    ]}
+                                    style={{
+                                        width: "100%",
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        maxWidth: 350,
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        gap: 5,
+                                    }}
                                 >
-                                    {selectedClientIdList.map((clientId) => {
+                                    <Text style={baseStyle.style.buttonText}>
+                                        R$
+                                    </Text>
 
-                                        const client = clients.find(
-                                            (client) =>
-                                                client.clientId === clientId
-                                        );
-
-                                        if (!client) {
-                                            return null;
+                                    <TextInput
+                                        style={[
+                                            baseStyle.style.inputStyle,
+                                            { maxWidth: 200 },
+                                        ]}
+                                        placeholder="Valor"
+                                        placeholderTextColor={
+                                            baseStyle.theme.inputPlaceHolder
                                         }
+                                        keyboardType="numeric"
+                                        value={itemPriceText}
+                                        onChangeText={handleItemPriceChange}
+                                    />
+                                </View>
 
-                                        return (
-                                            <View
-                                                key={clientId}
-                                                style={
-                                                    baseStyle.style.selectedClientContainer
-                                                }
-                                            >
-                                                <Text
+                                <CustomNumberInput
+                                    label="Quantidade"
+                                    min={1}
+                                    max={100}
+                                    value={itemQuantity}
+                                    onChange={setItemQuantity}
+                                />
+
+                                <ClientSelect
+                                    clients={clients}
+                                    selectedClientIds={selectedClientIdList}
+                                    value={selectedClientId}
+                                    onChange={(clientId) => {
+                                        setSelectedClientIdList((current) => [
+                                            ...current,
+                                            clientId,
+                                        ]);
+
+                                        setSelectedClientId("");
+                                    }}
+                                />
+
+                                {selectedClientIdList.length > 0 && (
+
+                                    <View
+                                        style={[
+                                            baseStyle.style.selectedClientsContainer,
+                                            {
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                            },
+                                        ]}
+                                    >
+                                        {selectedClientIdList.map((clientId) => {
+
+                                            const client = clients.find(
+                                                (client) =>
+                                                    client.clientId === clientId
+                                            );
+
+                                            if (!client) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <View
+                                                    key={clientId}
                                                     style={
-                                                        baseStyle.style.selectedClientName
+                                                        baseStyle.style.selectedClientContainer
                                                     }
-                                                >
-                                                    {client.name}
-                                                </Text>
-
-                                                <Pressable
-                                                    onPress={() => {
-                                                        setSelectedClientIdList(
-                                                            (current) =>
-                                                                current.filter(
-                                                                    (id) => id !== clientId
-                                                                )
-                                                        );
-                                                    }}
-                                                    style={({ pressed }) => [
-                                                        baseStyle.style.removeClientButton,
-                                                        {
-                                                            opacity: pressed ? 0.6 : 1,
-                                                        },
-                                                    ]}
                                                 >
                                                     <Text
                                                         style={
-                                                            baseStyle.style.removeClientButtonText
+                                                            baseStyle.style.selectedClientName
                                                         }
                                                     >
-                                                        ×
+                                                        {client.name}
                                                     </Text>
-                                                </Pressable>
-                                            </View>
-                                        );
-                                    })}
-                                </View>
-                            </ScrollView>
-                        )}
 
-                        <ThemedButton
-                            title={
-                                mode === "create"
-                                    ? "Fazer pedido"
-                                    : "Salvar alterações"
-                            }
-                            onPress={handleRegisterOrder}
-                        />
+                                                    <Pressable
+                                                        onPress={() => {
+                                                            setSelectedClientIdList(
+                                                                (current) =>
+                                                                    current.filter(
+                                                                        (id) => id !== clientId
+                                                                    )
+                                                            );
+                                                        }}
+                                                        style={({ pressed }) => [
+                                                            baseStyle.style.removeClientButton,
+                                                            {
+                                                                opacity: pressed ? 0.6 : 1,
+                                                            },
+                                                        ]}
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                baseStyle.style.removeClientButtonText
+                                                            }
+                                                        >
+                                                            ×
+                                                        </Text>
+                                                    </Pressable>
+                                                </View>
+                                            );
+                                        })}
+                                    </View>
+                                )}
+                            </View>
 
-                    </View>
+
+                            <ThemedButton
+                                title={
+                                    mode === "create"
+                                        ? "Fazer pedido"
+                                        : "Salvar alterações"
+                                }
+                                onPress={handleRegisterOrder}
+                            />
+
+                        </View>
+                    </KeyboardAwareScrollView>
+                    <KeyboardToolbar opacity="00" />
 
                     {successOrder && (
                         <View style={baseStyle.style.modalOverlay}>

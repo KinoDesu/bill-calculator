@@ -76,7 +76,6 @@ export default function ClientSelect({
             <TextInput
                 value={clientName}
                 onChangeText={handleChangeName}
-                onFocus={() => setOpen(true)}
                 placeholder="Adicionar cliente"
                 placeholderTextColor={baseStyle.theme?.inputPlaceHolder}
                 style={baseStyle.style.inputStyle}
@@ -120,16 +119,20 @@ export default function ClientSelect({
                         </View>
                     ) : (
                         <ScrollView
-                            nestedScrollEnabled
+                            style={{
+                                height: Math.min(filteredClients.length * 48, 250),
+                                maxHeight: 250,
+                                flexGrow: 0,
+                            }}
+                            nestedScrollEnabled={true}
                             keyboardShouldPersistTaps="handled"
-                            showsVerticalScrollIndicator={false}
+                            showsVerticalScrollIndicator={true}
+                            onStartShouldSetResponder={() => true}
                         >
                             {filteredClients.map((client) => (
                                 <Pressable
                                     key={client.clientId}
-                                    onPress={() =>
-                                        handleSelectClient(client)
-                                    }
+                                    onPress={() => handleSelectClient(client)}
                                     style={{
                                         paddingHorizontal: 16,
                                         paddingVertical: 14,

@@ -12,6 +12,7 @@ import { TableService } from "@/services/tableService";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAwareScrollView, KeyboardToolbar } from "react-native-keyboard-controller";
 
 export type MenuLoadingState = {
   status: boolean;
@@ -207,173 +208,181 @@ export function CustomMenu({
 
   return (
     <View style={styles.menuOverlay}>
-      <View style={styles.menuContainer}>
-        <View style={styles.menuHeader}>
-          <SquareButton title="X" onPress={onClose} />
-          <SquareButton title="S" onPress={onLeaveTable} />
+      <KeyboardAwareScrollView
+        bottomOffset={150}
+        extraKeyboardSpace={200}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+      >
+        <View style={styles.menuContainer}>
+          <View style={styles.menuHeader}>
+            <SquareButton title="X" onPress={onClose} />
+            <SquareButton title="S" onPress={onLeaveTable} />
+          </View>
+
+          {(menuOptionSelected.changeName || !hasSelectedMenuOption) && (
+            <View style={styles.menuOptionContainer}>
+              <ThemedButton
+                title="Alterar seu nome"
+                onPress={() =>
+                  setMenuOptionSelected({
+                    changeName: !menuOptionSelected.changeName,
+                    editTable: false,
+                    cleanOrders: false,
+                  })
+                }
+              />
+
+              {menuOptionSelected.changeName && (
+                <View style={styles.optionContent}>
+                  <View
+                    style={[
+                      baseStyle.style.inputContainer,
+                      styles.inputContainer,
+                    ]}
+                  >
+                    <View style={styles.fullWidth}>
+                      <Text style={baseStyle.style.headerTitleStyle}>
+                        Nome Atual:
+                      </Text>
+
+                      <Text style={baseStyle.style.headerTitleStyle}>
+                        {sessionClientInfo?.name}
+                      </Text>
+                    </View>
+
+                    <TextInput
+                      style={baseStyle.style.inputStyle}
+                      placeholder="Novo nome"
+                      placeholderTextColor={
+                        baseStyle.theme.inputPlaceHolder
+                      }
+                      value={menuNewClientNameInput}
+                      onChangeText={setMenuNewClientNameInput}
+                    />
+                  </View>
+
+                  <ThemedButton
+                    title="Salvar"
+                    onPress={updateClientName}
+                  />
+                </View>
+              )}
+            </View>
+          )}
+
+          {(menuOptionSelected.editTable || !hasSelectedMenuOption) && (
+            <View style={styles.menuOptionContainer}>
+              <ThemedButton
+                title="Editar mesa"
+                onPress={() =>
+                  setMenuOptionSelected({
+                    changeName: false,
+                    editTable: !menuOptionSelected.editTable,
+                    cleanOrders: false,
+                  })
+                }
+              />
+
+              {menuOptionSelected.editTable && (
+                <View style={styles.optionContent}>
+                  <View
+                    style={[
+                      baseStyle.style.inputContainer,
+                      styles.inputContainer,
+                    ]}
+                  >
+                    <View style={styles.fullWidth}>
+                      <Text style={baseStyle.style.headerTitleStyle}>
+                        Nome Atual:
+                      </Text>
+
+                      <Text style={baseStyle.style.headerTitleStyle}>
+                        {table.name}
+                      </Text>
+                    </View>
+
+                    <TextInput
+                      style={baseStyle.style.inputStyle}
+                      placeholder="Novo nome"
+                      placeholderTextColor={
+                        baseStyle.theme.inputPlaceHolder
+                      }
+                      value={menuNewTableNameInput}
+                      onChangeText={setMenuNewTableNameInput}
+                    />
+
+                    <CustomNumberInput
+                      label="Clientes"
+                      value={menuNewQuantityInput}
+                      max={20}
+                      min={table.clientQuantity}
+                      onChange={setMenuNewQuantityInput}
+                    />
+                  </View>
+
+                  <ThemedButton
+                    title="Salvar"
+                    onPress={updateTable}
+                  />
+                </View>
+              )}
+            </View>
+          )}
+
+          {(menuOptionSelected.cleanOrders || !hasSelectedMenuOption) && (
+            <View style={styles.menuOptionContainer}>
+              <ThemedButton
+                title="Limpar pedidos"
+                onPress={() =>
+                  setMenuOptionSelected({
+                    changeName: false,
+                    editTable: false,
+                    cleanOrders: !menuOptionSelected.cleanOrders,
+                  })
+                }
+              />
+
+              {menuOptionSelected.cleanOrders && (
+                <View style={styles.optionContent}>
+                  <View
+                    style={[
+                      baseStyle.style.inputContainer,
+                      styles.inputContainer,
+                    ]}
+                  >
+                    <View style={styles.fullWidth}>
+                      <Text style={baseStyle.style.headerTitleStyle}>
+                        Tem certeza?
+                      </Text>
+
+                      <Text style={baseStyle.style.headerTitleStyle}>
+                        "excluir" para confirmar
+                      </Text>
+                    </View>
+
+                    <TextInput
+                      style={baseStyle.style.inputStyle}
+                      placeholder='"excluir"'
+                      placeholderTextColor={
+                        baseStyle.theme.inputPlaceHolder
+                      }
+                      value={menuCleanOrdersInput}
+                      onChangeText={setMenuCleanOrdersInput}
+                    />
+                  </View>
+
+                  <ThemedButton
+                    title="Confirmar"
+                    onPress={cleanOrders}
+                  />
+                </View>
+              )}
+            </View>
+          )}
         </View>
-
-        {(menuOptionSelected.changeName || !hasSelectedMenuOption) && (
-          <View style={styles.menuOptionContainer}>
-            <ThemedButton
-              title="Alterar seu nome"
-              onPress={() =>
-                setMenuOptionSelected({
-                  changeName: !menuOptionSelected.changeName,
-                  editTable: false,
-                  cleanOrders: false,
-                })
-              }
-            />
-
-            {menuOptionSelected.changeName && (
-              <View style={styles.optionContent}>
-                <View
-                  style={[
-                    baseStyle.style.inputContainer,
-                    styles.inputContainer,
-                  ]}
-                >
-                  <View style={styles.fullWidth}>
-                    <Text style={baseStyle.style.headerTitleStyle}>
-                      Nome Atual:
-                    </Text>
-
-                    <Text style={baseStyle.style.headerTitleStyle}>
-                      {sessionClientInfo?.name}
-                    </Text>
-                  </View>
-
-                  <TextInput
-                    style={baseStyle.style.inputStyle}
-                    placeholder="Novo nome"
-                    placeholderTextColor={
-                      baseStyle.theme.inputPlaceHolder
-                    }
-                    value={menuNewClientNameInput}
-                    onChangeText={setMenuNewClientNameInput}
-                  />
-                </View>
-
-                <ThemedButton
-                  title="Salvar"
-                  onPress={updateClientName}
-                />
-              </View>
-            )}
-          </View>
-        )}
-
-        {(menuOptionSelected.editTable || !hasSelectedMenuOption) && (
-          <View style={styles.menuOptionContainer}>
-            <ThemedButton
-              title="Editar mesa"
-              onPress={() =>
-                setMenuOptionSelected({
-                  changeName: false,
-                  editTable: !menuOptionSelected.editTable,
-                  cleanOrders: false,
-                })
-              }
-            />
-
-            {menuOptionSelected.editTable && (
-              <View style={styles.optionContent}>
-                <View
-                  style={[
-                    baseStyle.style.inputContainer,
-                    styles.inputContainer,
-                  ]}
-                >
-                  <View style={styles.fullWidth}>
-                    <Text style={baseStyle.style.headerTitleStyle}>
-                      Nome Atual:
-                    </Text>
-
-                    <Text style={baseStyle.style.headerTitleStyle}>
-                      {table.name}
-                    </Text>
-                  </View>
-
-                  <TextInput
-                    style={baseStyle.style.inputStyle}
-                    placeholder="Novo nome"
-                    placeholderTextColor={
-                      baseStyle.theme.inputPlaceHolder
-                    }
-                    value={menuNewTableNameInput}
-                    onChangeText={setMenuNewTableNameInput}
-                  />
-
-                  <CustomNumberInput
-                    label="Clientes"
-                    value={menuNewQuantityInput}
-                    max={20}
-                    min={table.clientQuantity}
-                    onChange={setMenuNewQuantityInput}
-                  />
-                </View>
-
-                <ThemedButton
-                  title="Salvar"
-                  onPress={updateTable}
-                />
-              </View>
-            )}
-          </View>
-        )}
-
-        {(menuOptionSelected.cleanOrders || !hasSelectedMenuOption) && (
-          <View style={styles.menuOptionContainer}>
-            <ThemedButton
-              title="Limpar pedidos"
-              onPress={() =>
-                setMenuOptionSelected({
-                  changeName: false,
-                  editTable: false,
-                  cleanOrders: !menuOptionSelected.cleanOrders,
-                })
-              }
-            />
-
-            {menuOptionSelected.cleanOrders && (
-              <View style={styles.optionContent}>
-                <View
-                  style={[
-                    baseStyle.style.inputContainer,
-                    styles.inputContainer,
-                  ]}
-                >
-                  <View style={styles.fullWidth}>
-                    <Text style={baseStyle.style.headerTitleStyle}>
-                      Tem certeza?
-                    </Text>
-
-                    <Text style={baseStyle.style.headerTitleStyle}>
-                      "excluir" para confirmar
-                    </Text>
-                  </View>
-
-                  <TextInput
-                    style={baseStyle.style.inputStyle}
-                    placeholder='"excluir"'
-                    placeholderTextColor={
-                      baseStyle.theme.inputPlaceHolder
-                    }
-                    value={menuCleanOrdersInput}
-                    onChangeText={setMenuCleanOrdersInput}
-                  />
-                </View>
-
-                <ThemedButton
-                  title="Confirmar"
-                  onPress={cleanOrders}
-                />
-              </View>
-            )}
-          </View>
-        )}
-      </View>
+      </KeyboardAwareScrollView>
+      <KeyboardToolbar opacity="00" />
     </View>
   );
 }

@@ -1,4 +1,5 @@
 import { Background } from "@/components/background";
+import { ThemedButton } from "@/components/button";
 import ClientSelect from "@/components/ClientSelect";
 import { CustomNumberInput } from "@/components/customNumberInput";
 import { useBaseStyle } from "@/contexts/StyleContext";
@@ -14,17 +15,19 @@ import {
     useFocusEffect,
     useLocalSearchParams,
 } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Pressable,
     ScrollView,
     Text,
-    View,
+    View
 } from "react-native";
+import { KeyboardAwareScrollView, KeyboardToolbar } from 'react-native-keyboard-controller';
 
 export default function Billing() {
     const { tableCode } = useLocalSearchParams<{ tableCode: string }>();
+    const scrollViewRef = useRef<ScrollView>(null);
 
     const baseStyle = useBaseStyle();
     const { table, setTable } = useTable();
@@ -197,6 +200,30 @@ export default function Billing() {
         );
     };
 
+    function handleClientAmount(clientId: string) {
+        if (!clientId) {
+            return 0;
+        }
+
+        const total = orderList.reduce(
+            (total, order) => {
+                order.clients.forEach((client) => {
+
+                    if (client.clientId === clientId) {
+
+                        total +=
+                            client.amount;
+                    }
+                });
+
+                return total;
+            },
+            0
+        );
+
+        return total * (1 + billingService / 100);
+    }
+
     const subtotal = handleSubtotal();
     const total = handleTotal();
 
@@ -234,22 +261,8 @@ export default function Billing() {
     return (
         <View style={baseStyle.style.app}>
             <Background type="home" />
-
-            <ScrollView
-                style={{
-                    flex: 1,
-                    width: "100%",
-                }}
-                contentContainerStyle={{
-                    width: "100%",
-                    alignItems: "center",
-                    paddingVertical: 10,
-                    paddingBottom: 30,
-                }}
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}
-            >
-                <View style={baseStyle.style.scrollContainer}>
+            <KeyboardAwareScrollView bottomOffset={150} extraKeyboardSpace={200} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={baseStyle.style.container}>
                     <View style={baseStyle.style.inputContainer}>
                         <View
                             style={{
@@ -263,7 +276,7 @@ export default function Billing() {
                                 Subtotal
                             </Text>
 
-                            <Text style={baseStyle.style.headerTitleStyle}>
+                            <Text style={baseStyle.style.billPriceText}>
                                 {subtotal.toLocaleString("pt-BR", {
                                     style: "currency",
                                     currency: "BRL",
@@ -307,7 +320,7 @@ export default function Billing() {
 
                             <Text
                                 style={[
-                                    baseStyle.style.headerTitleStyle,
+                                    baseStyle.style.billPriceText,
                                     { fontWeight: "bold" },
                                 ]}
                             >
@@ -333,7 +346,7 @@ export default function Billing() {
 
                             <Text
                                 style={[
-                                    baseStyle.style.headerTitleStyle,
+                                    baseStyle.style.billPriceText,
                                     { fontWeight: "bold" },
                                 ]}
                             >
@@ -382,15 +395,30 @@ export default function Billing() {
                                                         .selectedClientContainer
                                                 }
                                             >
-                                                <Text
-                                                    style={
-                                                        baseStyle.style
-                                                            .selectedClientName
-                                                    }
-                                                    numberOfLines={1}
-                                                >
-                                                    {client.name}
-                                                </Text>
+                                                <View>
+                                                    <Text
+                                                        style={
+                                                            baseStyle.style
+                                                                .selectedClientName
+                                                        }
+                                                        numberOfLines={1}
+                                                    >
+                                                        {client.name}
+                                                    </Text>
+
+                                                    <Text
+                                                        style={
+                                                            baseStyle.style
+                                                                .selectedClientName
+                                                        }
+                                                        numberOfLines={1}
+                                                    >
+                                                        {handleClientAmount(clientId).toLocaleString("pt-BR", {
+                                                            style: "currency",
+                                                            currency: "BRL",
+                                                        })}
+                                                    </Text>
+                                                </View>
 
                                                 <Pressable
                                                     style={
@@ -436,7 +464,7 @@ export default function Billing() {
 
                                     <Text
                                         style={[
-                                            baseStyle.style.headerTitleStyle,
+                                            baseStyle.style.billPriceText,
                                             { fontWeight: "bold" },
                                         ]}
                                     >
@@ -465,7 +493,7 @@ export default function Billing() {
 
                                     <Text
                                         style={[
-                                            baseStyle.style.headerTitleStyle,
+                                            baseStyle.style.billPriceText,
                                             { fontWeight: "bold" },
                                         ]}
                                     >
@@ -478,8 +506,12 @@ export default function Billing() {
                             </View>
                         )}
                     </View>
+                    <ThemedButton
+                        title="Olá" />
                 </View>
-            </ScrollView>
+
+            </KeyboardAwareScrollView>
+            <KeyboardToolbar opacity="00" />
         </View>
     );
 }
