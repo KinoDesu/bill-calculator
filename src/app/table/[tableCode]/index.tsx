@@ -267,7 +267,14 @@ export default function TableRoom() {
 
                      <SquareButton
                         title="C"
-                        onPress={() => console.log("Conta")}
+                        onPress={() => {
+                           router.push({
+                              pathname: "/table/[tableCode]/billing",
+                              params: {
+                                 tableCode,
+                              },
+                           });
+                        }}
                      />
                   </View>
 

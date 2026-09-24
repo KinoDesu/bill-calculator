@@ -40,6 +40,7 @@ export default function RootLayout() {
             <Stack.Screen name="table/[tableCode]/order/create" options={{ title: "Fazer pedido" }} />
             <Stack.Screen name="table/[tableCode]/order/edit" options={{ title: "Editar pedido" }} />
             <Stack.Screen name="table/[tableCode]/invite" options={{ title: "Convide seus amigos" }} />
+            <Stack.Screen name="table/[tableCode]/billing" options={{ title: "Conta" }} />
           </Stack>
         </TableProvider>
       </SessionProvider>

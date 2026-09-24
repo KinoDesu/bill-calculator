@@ -2,8 +2,8 @@ import { useBaseStyle } from "@/contexts/StyleContext";
 import { Client } from "@/models/Client";
 import { useEffect, useState } from "react";
 import {
-    FlatList,
     Pressable,
+    ScrollView,
     Text,
     TextInput,
     View,
@@ -22,129 +22,125 @@ export default function ClientSelect({
     value,
     onChange,
 }: ClientSelectProps) {
+    const baseStyle = useBaseStyle();
+
     const [open, setOpen] = useState(false);
     const [clientName, setClientName] = useState("");
 
-    const baseStyle = useBaseStyle();
-
     useEffect(() => {
+        if (!value) {
+            setClientName("");
+            return;
+        }
+
         const selectedClient = clients.find(
             (client) => client.clientId === value
         );
 
-        if (selectedClient) {
-            setClientName(selectedClient.name);
-        }
-
-        if (!value) {
-            setClientName("");
-        }
+        setClientName(selectedClient?.name ?? "");
     }, [value, clients]);
 
-    function handleChangeName(text: string) {
+    const filteredClients = clients.filter((client) => {
+        const alreadySelected = selectedClientIds.includes(client.clientId);
+
+        if (alreadySelected) {
+            return false;
+        }
+
+        if (!clientName.trim()) {
+            return true;
+        }
+
+        return client.name
+            .toLowerCase()
+            .includes(clientName.toLowerCase());
+    });
+
+    const handleChangeName = (text: string) => {
         setClientName(text);
         setOpen(true);
 
-        if (value) {
+        if (!text.trim()) {
             onChange("");
         }
-    }
+    };
 
-    function handleSelectClient(client: Client) {
-        onChange(client.clientId);
-        setOpen(false);
+    const handleSelectClient = (client: Client) => {
         setClientName("");
-    }
-
-    const filteredClients = clients.filter((client) => {
-        const matchesName = client.name
-            .toLowerCase()
-            .includes(clientName.toLowerCase());
-
-        const isAlreadySelected = selectedClientIds.includes(
-            client.clientId
-        );
-
-        return matchesName && !isAlreadySelected;
-    });
+        setOpen(false);
+        onChange(client.clientId);
+    };
 
     return (
         <View style={baseStyle.style.clientSelectContainer}>
-            {/* Campo de seleção */}
-            <View style={baseStyle.style.clientInputContainer}>
-                <TextInput
-                    style={baseStyle.style.clientInput}
-                    placeholder="Nome do cliente"
-                    placeholderTextColor={baseStyle.theme.inputPlaceHolder}
-                    value={clientName}
-                    onChangeText={handleChangeName}
-                    editable={clients.length > 0}
-                    onFocus={() => {
-                        setOpen(true);
-                    }}
-                />
+            <TextInput
+                value={clientName}
+                onChangeText={handleChangeName}
+                onFocus={() => setOpen(true)}
+                placeholder="Adicionar cliente"
+                placeholderTextColor={baseStyle.theme?.inputPlaceHolder}
+                style={baseStyle.style.inputStyle}
+                autoCapitalize="words"
+            />
+            <Pressable
+                onPress={() => setOpen((current) => !current)}
+                disabled={clients.length === 0}
+                style={({ hovered, pressed }) => [
+                    baseStyle.style.clientInputButtonStyle,
+                    {
+                        opacity: clients.length === 0 ? 0.5 : 1,
+                        transform: [
+                            {
+                                scale: pressed ? 0.95 : 1,
+                            },
+                        ],
+                    },
+                    hovered &&
+                    clients.length > 0 && {
+                        opacity: 0.85,
+                    },
+                ]}
+            >
+                <Text style={baseStyle.style.clientInputButtonTextStyle}>
+                    {open ? "▴" : "▾"}
+                </Text>
+            </Pressable>
 
-                <Pressable
-                    onPress={() => setOpen((current) => !current)}
-                    disabled={clients.length === 0}
-                    style={({ hovered, pressed }) => [
-                        baseStyle.style.clientInputButtonStyle,
-                        {
-                            opacity: clients.length === 0 ? 0.5 : 1,
-                            transform: [
-                                {
-                                    scale: pressed ? 0.95 : 1,
-                                },
-                            ],
-                        },
-                        hovered &&
-                        clients.length > 0 && {
-                            opacity: 0.85,
-                        },
-                    ]}
-                >
-                    <Text style={baseStyle.style.clientInputButtonTextStyle}>
-                        {open ? "▴" : "▾"}
-                    </Text>
-                </Pressable>
-            </View>
-
-            {/* Dropdown */}
             {open && (
                 <View style={baseStyle.style.clientInputListContainer}>
                     {filteredClients.length === 0 ? (
-                        <View style={{ padding: 16 }}>
+                        <View
+                            style={{
+                                padding: 16,
+                            }}
+                        >
                             <Text style={baseStyle.style.textStyle}>
                                 Nenhum cliente encontrado
                             </Text>
                         </View>
                     ) : (
-                        <FlatList
-                            data={filteredClients}
-                            keyExtractor={(client) => client.clientId}
+                        <ScrollView
+                            nestedScrollEnabled
                             keyboardShouldPersistTaps="handled"
-                            renderItem={({ item }) => (
+                            showsVerticalScrollIndicator={false}
+                        >
+                            {filteredClients.map((client) => (
                                 <Pressable
-                                    onPress={() => handleSelectClient(item)}
-                                    style={({ hovered, pressed }) => [
-                                        {
-                                            paddingVertical: 14,
-                                            paddingHorizontal: 16,
-                                        },
-                                        hovered && {
-                                            backgroundColor: baseStyle.theme.primary + "20",
-                                        },
-                                        pressed && {
-                                            backgroundColor: baseStyle.theme.primary + "40",
-                                        },
-                                    ]}
+                                    key={client.clientId}
+                                    onPress={() =>
+                                        handleSelectClient(client)
+                                    }
+                                    style={{
+                                        paddingHorizontal: 16,
+                                        paddingVertical: 14,
+                                    }}
                                 >
                                     <Text style={baseStyle.style.textStyle}>
-                                        {item.name}
+                                        {client.name}
                                     </Text>
                                 </Pressable>
-                            )}
-                        />
+                            ))}
+                        </ScrollView>
                     )}
                 </View>
             )}
