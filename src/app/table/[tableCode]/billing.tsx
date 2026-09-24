@@ -95,7 +95,6 @@ export default function Billing() {
             setTableClients(clients);
             setOrderList(orders);
         } catch (error) {
-            console.error("Erro ao carregar mesa:", error);
             router.replace("/");
         } finally {
             setLoading({

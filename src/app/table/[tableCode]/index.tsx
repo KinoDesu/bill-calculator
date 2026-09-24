@@ -1,5 +1,6 @@
 import { Background } from "@/components/background";
 import { CustomMenu } from "@/components/CustomMenu";
+import { showSuccess } from "@/components/CustomToast";
 import { OrderItemBox } from "@/components/orderItemBox";
 import { SquareButton } from "@/components/squareButton";
 import { useBaseStyle } from "@/contexts/StyleContext";
@@ -19,7 +20,6 @@ import {
 import { useCallback, useState } from "react";
 import {
    ActivityIndicator,
-   Alert,
    Modal,
    Platform,
    ScrollView,
@@ -83,7 +83,6 @@ export default function TableRoom() {
                   message: "",
                });
             }).catch((error) => {
-               console.error("Falha ao buscar pedidos: " + error);
             }).finally(() => {
                setLoading({
                   status: false,
@@ -105,10 +104,6 @@ export default function TableRoom() {
          }
 
       } catch (error) {
-         console.error(
-            "Falha ao recuperar dados da mesa:",
-            error
-         );
 
          router.replace("/table/join");
       } finally {
@@ -134,8 +129,11 @@ export default function TableRoom() {
          setOrderList((currentOrders) =>
             currentOrders.filter((order) => order.orderId !== orderId)
          );
+
+         showSuccess(
+            "Pedido removido com sucesso!"
+         )
       } catch (error) {
-         Alert.alert("Erro", "Não foi possível excluir o pedido.");
       } finally {
          setShowModal(false);
       }

@@ -1,6 +1,8 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
+import { showError } from "@/components/CustomToast";
 import { QRCodeScanner } from "@/components/QRCodeScanner";
+import ErrorEnum from "@/constants/errorEnum";
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
 import { TableService } from "@/services/tableService";
@@ -25,7 +27,7 @@ export default function JoinTable() {
     });
     const [showResumeModal, setShowResumeModal] = useState(false);
     const { table, setTable } = useTable();
-    const [sessionClientId, setSessionClientId] = useState(""); 
+    const [sessionClientId, setSessionClientId] = useState("");
 
     useFocusEffect(
         useCallback(() => {
@@ -46,12 +48,9 @@ export default function JoinTable() {
 
             const table = await TableService.getTableDataByCode(session.tableCode);
             setTable(table);
-            setSessionClientId(session.clientId??"");
+            setSessionClientId(session.clientId ?? "");
             setShowResumeModal(true);
         } catch (error) {
-
-            console.error("Erro ao recuperar sessão:", error);
-
             await TableSessionService.clear();
         } finally {
             setLoading({ status: false, message: "" })
@@ -60,7 +59,10 @@ export default function JoinTable() {
 
     function goToTable(tableCode: string) {
         if (!tableCode) {
-            console.error("Código da mesa não encontrado");
+            showError(
+                ErrorEnum.ERROR.description,
+                "Código da mesa não encontrado"
+            );
             return;
         }
 
@@ -130,10 +132,6 @@ export default function JoinTable() {
                                             goToTable(code);
                                         }
                                     } catch (error) {
-                                        console.error(
-                                            "Erro ao buscar mesa:",
-                                            error
-                                        );
                                     }
                                 }}
                             />
@@ -145,6 +143,7 @@ export default function JoinTable() {
                                 onChangeText={(newValue) =>
                                     setTableCode(newValue)
                                 }
+                                maxLength={5}
                             />
 
                             {loading.status ? (

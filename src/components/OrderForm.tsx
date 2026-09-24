@@ -94,7 +94,6 @@ export default function OrderForm({ mode }: OrderFormProps) {
             }
 
         } catch (error) {
-            console.error("Falha ao carregar dados:", error);
             router.replace("/table/join");
         } finally {
             setLoading({
@@ -116,7 +115,6 @@ export default function OrderForm({ mode }: OrderFormProps) {
             setClients(clients);
 
         } catch (error) {
-            console.error("Erro ao buscar clientes:", error);
             router.back();
         }
     }
@@ -145,7 +143,6 @@ export default function OrderForm({ mode }: OrderFormProps) {
             );
 
         } catch (error) {
-            console.error("Erro ao buscar pedido:", error);
             router.back();
         }
     }
@@ -203,12 +200,6 @@ export default function OrderForm({ mode }: OrderFormProps) {
             setSuccessOrder(order);
 
         } catch (error) {
-            console.error(
-                mode === "create"
-                    ? "Erro ao gravar pedido:"
-                    : "Erro ao atualizar pedido:",
-                error
-            );
 
         } finally {
             setLoading({
@@ -261,6 +252,7 @@ export default function OrderForm({ mode }: OrderFormProps) {
                                     }
                                     value={itemName}
                                     onChangeText={setItemName}
+                                    maxLength={15}
                                 />
 
                                 <View

@@ -41,10 +41,6 @@ export default function Invite() {
             setTable(table);
 
         } catch (error) {
-            console.error(
-                "Falha ao recuperar dados da mesa:",
-                error
-            );
 
             router.replace("/table/join");
         } finally {
@@ -61,7 +57,6 @@ export default function Invite() {
 
             setQrcode(qrCode);
         } catch (error) {
-            console.error("Falha ao recuperar QR Code:", error);
         }
     }
 

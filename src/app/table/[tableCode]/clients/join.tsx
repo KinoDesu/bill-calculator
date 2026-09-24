@@ -47,10 +47,6 @@ export default function joinClient() {
             setClientList(clientList);
 
         } catch (error) {
-            console.error(
-                "Falha ao recuperar dados da mesa:",
-                error
-            );
 
             router.replace("/table/join");
         } finally {

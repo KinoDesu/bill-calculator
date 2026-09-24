@@ -107,7 +107,6 @@ export function CustomMenu({
       await onRefresh();
       closeMenuOption();
     } catch (error) {
-      console.error("Erro ao atualizar nome:", error);
     } finally {
       onLoadingChange({
         status: false,
@@ -167,7 +166,6 @@ export function CustomMenu({
         },
       });
     } catch (error) {
-      console.error("Erro ao atualizar mesa:", error);
     } finally {
       onLoadingChange({
         status: false,
@@ -193,7 +191,6 @@ export function CustomMenu({
       closeMenuOption();
       setMenuCleanOrdersInput("");
     } catch (error) {
-      console.error("Erro ao excluir pedidos:", error);
     } finally {
       onLoadingChange({
         status: false,
@@ -259,6 +256,7 @@ export function CustomMenu({
                       }
                       value={menuNewClientNameInput}
                       onChangeText={setMenuNewClientNameInput}
+                      maxLength={15}
                     />
                   </View>
 
@@ -310,6 +308,7 @@ export function CustomMenu({
                       }
                       value={menuNewTableNameInput}
                       onChangeText={setMenuNewTableNameInput}
+                      maxLength={15}
                     />
 
                     <CustomNumberInput
@@ -369,6 +368,7 @@ export function CustomMenu({
                       }
                       value={menuCleanOrdersInput}
                       onChangeText={setMenuCleanOrdersInput}
+                      maxLength={15}
                     />
                   </View>
 

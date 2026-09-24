@@ -64,6 +64,7 @@ export function CustomNumberInput({
           onChangeText={handleChange}
           keyboardType="number-pad"
           style={baseStyle.style.numberInput}
+          maxLength={2}
         />
 
         <SquareButton

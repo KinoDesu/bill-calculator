@@ -1,7 +1,9 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
 import { CustomNumberInput } from "@/components/customNumberInput";
+import { showError } from "@/components/CustomToast";
 import { environment } from "@/config/environment";
+import ErrorEnum from "@/constants/errorEnum";
 import { useSession } from "@/contexts/SessionContext";
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
@@ -12,6 +14,7 @@ import { TableService } from "@/services/tableService";
 import { router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Text, TextInput, View } from "react-native";
+
 
 export default function createTable() {
    const baseStyle = useBaseStyle();
@@ -29,12 +32,18 @@ export default function createTable() {
 
    async function handleCreateTable() {
       if (!clientName.trim()) {
-         console.error("Nome do cliente não informado");
+         showError(
+            ErrorEnum.WARNING.description,
+            "Informe seu nome para continuar."
+         );
          return;
       }
 
       if (!tableName.trim()) {
-         console.error("Nome da mesa não informado");
+         showError(
+            ErrorEnum.WARNING.description,
+            "Informe um nome de mesa para continuar."
+         );
          return;
       }
 
@@ -77,8 +86,8 @@ export default function createTable() {
                tableCode: createdTable.code!,
             },
          });
-      } catch (error) {
-         console.error("Falha ao criar mesa:", error);
+      } catch (erro) {
+
       } finally {
          setLoading({
             status: false,
@@ -117,6 +126,7 @@ export default function createTable() {
                         placeholder="Seu nome"
                         placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                         onChangeText={setClientName}
+                        maxLength={15}
                      />
 
                      <TextInput
@@ -124,6 +134,7 @@ export default function createTable() {
                         placeholder="Nome da mesa"
                         placeholderTextColor={baseStyle.theme.inputPlaceHolder}
                         onChangeText={setTableName}
+                        maxLength={15}
                      />
 
                      <CustomNumberInput

@@ -1,28 +1,48 @@
 import { environment } from "@/config/environment";
-import { ApiException } from "@/exceptions/ApiException";
+import ErrorEnum from "@/constants/errorEnum";
 import { ErrorResponse } from "@/models/ErrorResponse";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import Toast from "react-native-toast-message";
 
 export const api = axios.create({
     baseURL: environment.apiBaseUrl,
+    timeout: 3000,
 });
 
-export function getApiError(error: unknown): ApiException | null {
+api.interceptors.response.use(
+    response => response,
 
-    if (!axios.isAxiosError(error)) {
-        return null;
+    error => {
+        showApiError(error);
+
+        return Promise.reject(error);
+    }
+);
+
+function showApiError(error: unknown) {
+
+    if (!axios.isAxiosError<ErrorResponse>(error)) {
+        return;
     }
 
-    const axiosError = error as AxiosError<ErrorResponse>;
+    const response = error.response;
 
-    const response = axiosError.response;
+    if (!response?.data?.errors?.length) {
 
-    if (!response?.data?.errors) {
-        return null;
+        Toast.show({
+            type: ErrorEnum.ERROR.toastType,
+            text1: ErrorEnum.ERROR.description,
+            text2: "Ocorreu um erro desconhecido",
+        });
+
+        return;
     }
 
-    return new ApiException(
-        response.data.errors,
-        response.status
-    );
+    const apiError = response.data.errors[0];
+
+    Toast.show({
+        type: ErrorEnum[apiError.level].toastType,
+        text1: ErrorEnum[apiError.level].description,
+        text2: `${response.status} - ${apiError.description}`,
+    });
 }

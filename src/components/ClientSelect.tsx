@@ -81,6 +81,7 @@ export default function ClientSelect({
                 placeholderTextColor={baseStyle.theme?.inputPlaceHolder}
                 style={baseStyle.style.inputStyle}
                 autoCapitalize="words"
+                maxLength={15}
             />
             <Pressable
                 onPress={() => setOpen((current) => !current)}

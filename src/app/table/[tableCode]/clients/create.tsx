@@ -1,5 +1,7 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
+import { showError } from "@/components/CustomToast";
+import ErrorEnum from "@/constants/errorEnum";
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
 import { ClientRegisterRequest } from "@/models/ClientRegisterRequest";
@@ -42,7 +44,6 @@ export default function registerClients() {
                 );
             })
             .catch(() => {
-                console.error("Falha ao recuperar dados da mesa");
                 router.replace("/table/join");
             })
             .finally(() => {
@@ -121,6 +122,7 @@ export default function registerClients() {
                                                         return names;
                                                     });
                                                 }}
+                                                maxLength={15}
                                             />
                                         )
                                     )}
@@ -134,7 +136,10 @@ export default function registerClients() {
                                         );
 
                                         if (hasEmptyName) {
-                                            console.error("Todos os clientes precisam ter um nome");
+                                            showError(
+                                                ErrorEnum.WARNING.description,
+                                                "Todos os clientes precisam ter um nome"
+                                            );
                                             return;
                                         }
 
@@ -163,7 +168,6 @@ export default function registerClients() {
                                                 },
                                             });
                                         } catch (error) {
-                                            console.error("Erro ao registrar cliente:", error);
                                         } finally {
                                             setLoading({
                                                 status: false,

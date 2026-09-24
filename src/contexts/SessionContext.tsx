@@ -39,7 +39,6 @@ export function SessionProvider({
 
             setSession(savedSession);
         } catch (error) {
-            console.error("Erro ao carregar sessão:", error);
         } finally {
             setLoading(false);
         }
