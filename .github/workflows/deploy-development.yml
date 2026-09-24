@@ -1,0 +1,192 @@
+name: Deploy Frontend
+
+on:
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ============================================================
+      # Checkout
+      # ============================================================
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ============================================================
+      # Node / validação
+      # ============================================================
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Expo project
+        run: npx expo export --platform web
+
+      # ============================================================
+      # Tailscale
+      # ============================================================
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_CLIENT_SECRET }}
+          tags: tag:ci
+          ping: ${{ secrets.RASPBERRY_HOST }}
+
+      # ============================================================
+      # SSH
+      # ============================================================
+
+      - name: Configure SSH agent
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.RASPBERRY_SSH_KEY }}
+
+      - name: Configure known hosts
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          ssh-keyscan -H "${{ secrets.RASPBERRY_HOST }}" >> ~/.ssh/known_hosts
+
+          chmod 644 ~/.ssh/known_hosts
+
+      # ============================================================
+      # Preparar pacote
+      # ============================================================
+
+      - name: Prepare frontend package
+        run: |
+          tar \
+            --exclude='./node_modules' \
+            --exclude='./.git' \
+            --exclude='./.expo' \
+            --exclude='./dist' \
+            --exclude='./.env' \
+            --exclude='./.env.local' \
+            -czf /tmp/frontend.tar.gz .
+
+      # ============================================================
+      # Deploy do código
+      # ============================================================
+
+      - name: Deploy frontend
+        run: |
+          scp /tmp/frontend.tar.gz \
+            "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/tmp/frontend.tar.gz"
+
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
+            "find /opt/calculaconta/frontend \
+              -mindepth 1 \
+              -maxdepth 1 \
+              ! -name '.env' \
+              ! -name 'node_modules' \
+              -exec rm -rf {} + && \
+            tar -xzf /tmp/frontend.tar.gz \
+              -C /opt/calculaconta/frontend && \
+            rm /tmp/frontend.tar.gz"
+
+      # ============================================================
+      # Instalar dependências no Raspberry
+      # ============================================================
+
+      - name: Install frontend dependencies
+        run: |
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
+            "bash -lc '
+              set -e
+              source ~/.nvm/nvm.sh
+              nvm use 24
+
+              echo \"Node:\"
+              node --version
+
+              echo \"NPM:\"
+              npm --version
+
+              echo \"Frontend:\"
+              cd /opt/calculaconta/frontend
+              pwd
+
+              echo \"Package files:\"
+              ls -la package.json package-lock.json
+
+              echo \"Installing dependencies:\"
+              npm ci
+            '"
+
+      # ============================================================
+      # Gerar .env
+      # ============================================================
+
+      - name: Install YAML parser
+        run: pip install pyyaml
+
+      - name: Generate frontend .env
+        run: |
+          python - <<'PY'
+          import yaml
+
+          values_file = ".cd/dev/values-dev.yaml"
+          output_file = "/tmp/frontend.env"
+
+          with open(values_file, "r", encoding="utf-8") as file:
+              config = yaml.safe_load(file)
+
+          with open(output_file, "w", encoding="utf-8") as file:
+              for environment in config.get("environment", []):
+                  name = environment.get("name")
+                  value = environment.get("value")
+
+                  if name is None or value is None:
+                      continue
+
+                  env_name = (
+                      name
+                      if name.startswith("EXPO_PUBLIC_")
+                      else f"EXPO_PUBLIC_{name}"
+                  )
+
+                  file.write(f"{env_name}={value}\n")
+
+          print(f"Generated {output_file}")
+          PY
+
+      # ============================================================
+      # Deploy do .env
+      # ============================================================
+
+      - name: Deploy frontend environment
+        run: |
+          scp /tmp/frontend.env \
+            "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}:/opt/calculaconta/frontend/.env"
+
+      # ============================================================
+      # Reiniciar Metro
+      # ============================================================
+
+      - name: Restart frontend
+        run: |
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
+            "sudo -n systemctl restart calculaconta-frontend"
+
+      # ============================================================
+      # Verificar serviço
+      # ============================================================
+
+      - name: Verify frontend
+        run: |
+          ssh "${{ secrets.RASPBERRY_USER }}@${{ secrets.RASPBERRY_HOST }}" \
+            "sudo -n systemctl is-active --quiet calculaconta-frontend"
