@@ -35,8 +35,15 @@ export default function registerClients() {
             .then((table) => {
                 setTable(table);
 
+                if (!table || !table.tableId) {
+                    showError(
+                        ErrorEnum.ERROR.description,
+                        "Falha ao recuperar mesa"
+                    );
+                    return;
+                }
 
-                ClientService.getTableClients(table.tableId ?? "").then(
+                ClientService.getTableClients(table.tableId).then(
                     (clientList) => {
                         setNewClientQuantity(table.clientQuantity - clientList.length)
                         setInitialIndex(clientList.length + 1)

@@ -15,11 +15,10 @@ import {
     useFocusEffect,
     useLocalSearchParams,
 } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import {
     ActivityIndicator,
     Pressable,
-    ScrollView,
     Text,
     View
 } from "react-native";
@@ -27,7 +26,6 @@ import { KeyboardAwareScrollView, KeyboardToolbar } from 'react-native-keyboard-
 
 export default function Billing() {
     const { tableCode } = useLocalSearchParams<{ tableCode: string }>();
-    const scrollViewRef = useRef<ScrollView>(null);
 
     const baseStyle = useBaseStyle();
     const { table, setTable } = useTable();

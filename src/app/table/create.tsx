@@ -24,7 +24,7 @@ export default function createTable() {
    const [clientQuantity, setClientQuantity] = useState(2);
    const [tableName, setTableName] = useState("");
    const [clientName, setClientName] = useState("");
-   const { table, setTable } = useTable();
+   const { setTable } = useTable();
    const [loading, setLoading] = useState({
       status: false,
       message: "",
@@ -70,7 +70,7 @@ export default function createTable() {
             clientId: null,
          };
 
-         await ClientService.registerClient(
+         const sessionClient = await ClientService.registerClient(
             clientRequest,
             createdTable.tableId!
          );
@@ -78,6 +78,7 @@ export default function createTable() {
          await saveSession({
             tableId: createdTable.tableId!,
             tableCode: createdTable.code!,
+            clientId: sessionClient,
          });
 
          router.replace({

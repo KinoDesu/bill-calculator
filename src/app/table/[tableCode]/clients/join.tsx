@@ -1,5 +1,7 @@
 import { Background } from "@/components/background";
 import { ThemedButton } from "@/components/button";
+import { showError } from "@/components/CustomToast";
+import ErrorEnum from "@/constants/errorEnum";
 import { useSession } from "@/contexts/SessionContext";
 import { useBaseStyle } from "@/contexts/StyleContext";
 import { useTable } from "@/contexts/TableContext";
@@ -20,7 +22,6 @@ export default function joinClient() {
     const { table, setTable } = useTable();
 
     const [clientList, setClientList] = useState<Client[]>([]);
-    const [selectedClient, setSelectedClient] = useState("");
 
     const [loading, setLoading] = useState({
         status: false,
@@ -122,12 +123,16 @@ export default function joinClient() {
 
     async function goToTable(clientId: string) {
 
-        if (!table) {
-            throw new Error("Valor da mesa inválido");
+        if (!table || !table.tableId) {
+            showError(
+                ErrorEnum.WARNING.description,
+                "Valor da mesa inválido"
+            )
+            return;
         }
 
         await saveSession({
-            tableId: table.tableId!,
+            tableId: table.tableId,
             tableCode: tableCode,
             clientId: clientId
         });
