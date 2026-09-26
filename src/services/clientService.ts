@@ -41,9 +41,9 @@ export class ClientService {
     static async registerClient(
         request: ClientRegisterRequest,
         tableId: string
-    ) {
+    ): Promise<Client | null> {
         if (!tableId) {
-            return;
+            return null;
         }
 
         if (request.name.trim().length === 0) {
@@ -51,7 +51,7 @@ export class ClientService {
                 ErrorEnum.WARNING.description,
                 "Nome não pode ser vazio"
             );
-            return;
+            return null;
         }
 
         const response = await api.post(
@@ -60,7 +60,6 @@ export class ClientService {
         );
 
         return response.data;
-
     }
 
 

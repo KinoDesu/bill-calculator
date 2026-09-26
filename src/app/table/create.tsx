@@ -78,7 +78,7 @@ export default function createTable() {
          await saveSession({
             tableId: createdTable.tableId!,
             tableCode: createdTable.code!,
-            clientId: sessionClient,
+            clientId: sessionClient?.clientId,
          });
 
          router.replace({
